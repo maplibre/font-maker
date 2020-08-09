@@ -1,0 +1,8 @@
+glyphs.pb.cc
+glyphs.pb.h
+cmake_install.cmake
+Makefile
+CMakeFiles
+CMakeCache.txt
+*.pbf
+fonts

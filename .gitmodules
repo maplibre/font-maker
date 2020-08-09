@@ -1,0 +1,9 @@
+[submodule "vendor/sdf-glyph-foundry"]
+	path = vendor/sdf-glyph-foundry
+	url = https://github.com/mapbox/sdf-glyph-foundry.git
+[submodule "vendor/filesystem"]
+	path = vendor/filesystem
+	url = https://github.com/gulrak/filesystem.git
+[submodule "vendor/cxxopts"]
+	path = vendor/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git

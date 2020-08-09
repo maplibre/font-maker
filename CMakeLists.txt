@@ -1,0 +1,20 @@
+cmake_minimum_required (VERSION 3.5)
+set(CMAKE_C_COMPILER "/usr/bin/clang")
+set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
+project(sdf-glyph)
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g")
+set(CMAKE_CXX_FLAGS "-Wno-deprecated")
+set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
+set(CMAKE_CXX_FLAGS "-pthread")
+
+include_directories(vendor/filesystem/include)
+include_directories(vendor/sdf-glyph-foundry/include)
+include_directories(/opt/local/include)
+include_directories(/opt/local/include/freetype2)
+link_directories(/opt/local/lib)
+
+add_executable(sdf-glyph main.cpp glyphs.pb.cc)
+target_link_libraries(sdf-glyph freetype protobuf)
+
+set_property(TARGET sdf-glyph PROPERTY CXX_STANDARD 17)

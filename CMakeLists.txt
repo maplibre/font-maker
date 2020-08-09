@@ -8,6 +8,7 @@ set(CMAKE_CXX_FLAGS "-Wno-deprecated")
 set(CMAKE_CXX_FLAGS "-Wno-deprecated-declarations")
 set(CMAKE_CXX_FLAGS "-pthread")
 
+include_directories(vendor/cxxopts/include)
 include_directories(vendor/filesystem/include)
 include_directories(vendor/sdf-glyph-foundry/include)
 include_directories(/opt/local/include)

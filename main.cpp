@@ -1,8 +1,10 @@
 #include <fcntl.h> 
 #include <iostream>
 #include <fstream>
-#include <mapbox/glyph_foundry.hpp>
-#include <mapbox/glyph_foundry_impl.hpp>
+#include "mapbox/glyph_foundry.hpp"
+#include "mapbox/glyph_foundry_impl.hpp"
+#include "cxxopts.hpp"
+#include "ghc/filesystem.hpp"
 #include "glyphs.pb.h"
 
 using namespace std;
@@ -105,13 +107,26 @@ void do_range(vector<ft_face> &faces, const string &output_dir, unsigned start, 
 
 int main(int argc, char * argv[]) 
 {
-    // composites the fonts in order they are passed
-    if (argc < 3) {
-        cout << "usage: sdf-glyph OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
+    cxxopts::Options cmd_options("sdf-glyph", "Create font PBFs.");
+    cmd_options.add_options()
+        ("output", "Output directory", cxxopts::value<string>())
+        ("fonts", "Input fonts TTF or OTF", cxxopts::value<vector<string>>())
+    ;
+    cmd_options.parse_positional({"output","fonts"});
+    auto result = cmd_options.parse(argc, argv);
+    auto output = result["output"].as<string>();
+    if (ghc::filesystem::exists(output)) {
+        cout << "ERROR: output directory " << output << " exists." << endl;
         exit(1);
     }
+    if (ghc::filesystem::exists(output)) ghc::filesystem::remove_all(output);
+    ghc::filesystem::create_directory(output);
 
-    string output_dir = argv[1];
+    // composites the fonts in order they are passed
+    // if (argc < 3) {
+    //     cout << "usage: sdf-glyph OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
+    //     exit(1);
+    // }
 
     FT_Library library = nullptr;
     ft_library_guard library_guard(&library);
@@ -121,9 +136,9 @@ int main(int argc, char * argv[])
     }
 
     vector<ft_face> faces;
-    for (int i = 2; i < argc; i++) {
+    for (auto const &font : result["fonts"].as<vector<string>>()) {
         FT_Face face = 0;
-        FT_Error face_error = FT_New_Face(library, argv[i], 0, &face);
+        FT_Error face_error = FT_New_Face(library, font.c_str(), 0, &face);
         if (face_error) {
             throw runtime_error("Could not open font face");
         }
@@ -142,7 +157,7 @@ int main(int argc, char * argv[])
 
     for (unsigned i = 0; i < 65536; i+= 256) {
         cout << i << " " << i + 255 << endl;
-        do_range(faces,output_dir,i,i+255);
+        do_range(faces,output,i,i+255);
     }
 
     return 0;

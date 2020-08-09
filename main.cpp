@@ -9,36 +9,9 @@
 
 using namespace std;
 
-// code from https://github.com/mapbox/node-fontnik/blob/master/src/glyphs.cpp
-
-struct ft_library_guard {
-    // non copyable
-    ft_library_guard(ft_library_guard const&) = delete;
-    ft_library_guard& operator=(ft_library_guard const&) = delete;
-
-    ft_library_guard(FT_Library* lib) : library_(lib) {}
-
-    ~ft_library_guard() {
-        if (library_) FT_Done_FreeType(*library_);
-    }
-
-    FT_Library* library_;
-};
-
-struct ft_face {
-    ft_face(FT_Face f) : face_(f) {}
-    ~ft_face() {
-        if (face_) {
-            //FT_Done_Face(face_);
-        }
-    }
-
-    FT_Face face_;
-};
-
-void do_codepoint(vector<ft_face> &faces, llmr::glyphs::fontstack* mutable_fontstack, FT_ULong char_code) {
+void do_codepoint(vector<FT_Face> &faces, llmr::glyphs::fontstack* mutable_fontstack, FT_ULong char_code) {
     for (auto &face : faces) {
-        FT_UInt char_index = FT_Get_Char_Index(face.face_, char_code);
+        FT_UInt char_index = FT_Get_Char_Index(face, char_code);
 
         if (!char_index) {
             continue;
@@ -46,7 +19,7 @@ void do_codepoint(vector<ft_face> &faces, llmr::glyphs::fontstack* mutable_fonts
 
         sdf_glyph_foundry::glyph_info glyph;
         glyph.glyph_index = char_index;
-        sdf_glyph_foundry::RenderSDF(glyph, 24, 3, 0.25, face.face_);
+        sdf_glyph_foundry::RenderSDF(glyph, 24, 3, 0.25, face);
 
         // Add glyph to fontstack.
         llmr::glyphs::glyph* mutable_glyph = mutable_fontstack->add_glyphs();
@@ -87,11 +60,11 @@ void do_codepoint(vector<ft_face> &faces, llmr::glyphs::fontstack* mutable_fonts
     }
 }
 
-void do_range(vector<ft_face> &faces, const string &output_dir, unsigned start, unsigned end) {
+void do_range(vector<FT_Face> &faces, const string &output_dir, unsigned start, unsigned end) {
     llmr::glyphs::glyphs glyphs;
 
     llmr::glyphs::fontstack* mutable_fontstack = glyphs.add_stacks();
-    mutable_fontstack->set_name(""); // this is not actually used for anything
+    mutable_fontstack->set_name(""); // this is not used yet
     mutable_fontstack->set_range(to_string(start) + "-" + to_string(end));
 
     for (unsigned x = start; x <= end; x++) {
@@ -114,7 +87,13 @@ int main(int argc, char * argv[])
     ;
     cmd_options.parse_positional({"output","fonts"});
     auto result = cmd_options.parse(argc, argv);
+    if (result.count("output") == 0 || result.count("fonts") == 0) {
+        cout << "usage: sdf-glyph OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
+        exit(1);
+    }
     auto output = result["output"].as<string>();
+    auto fonts = result["fonts"].as<vector<string>>();
+
     if (ghc::filesystem::exists(output)) {
         cout << "ERROR: output directory " << output << " exists." << endl;
         exit(1);
@@ -122,21 +101,14 @@ int main(int argc, char * argv[])
     if (ghc::filesystem::exists(output)) ghc::filesystem::remove_all(output);
     ghc::filesystem::create_directory(output);
 
-    // composites the fonts in order they are passed
-    // if (argc < 3) {
-    //     cout << "usage: sdf-glyph OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
-    //     exit(1);
-    // }
-
     FT_Library library = nullptr;
-    ft_library_guard library_guard(&library);
     FT_Error error = FT_Init_FreeType(&library);
     if (error) {
         throw runtime_error("FreeType could not be initialized");
     }
 
-    vector<ft_face> faces;
-    for (auto const &font : result["fonts"].as<vector<string>>()) {
+    vector<FT_Face> faces;
+    for (auto const &font : fonts) {
         FT_Face face = 0;
         FT_Error face_error = FT_New_Face(library, font.c_str(), 0, &face);
         if (face_error) {
@@ -155,10 +127,17 @@ int main(int argc, char * argv[])
         faces.emplace_back(face);
     }
 
+
     for (unsigned i = 0; i < 65536; i+= 256) {
         cout << i << " " << i + 255 << endl;
         do_range(faces,output,i,i+255);
     }
+
+    for (auto face : faces) {
+        FT_Done_Face(face);
+    }
+
+    FT_Done_FreeType(library);
 
     return 0;
 }

@@ -14,4 +14,11 @@ Requires freetype and protobuf to be installed on your system.
     git submodule init
     cmake .
     make
+    protoc glyphs.proto --cpp_out=.
 
+## Variants
+
+By specifying a font file you can control which variants are used for these scripts:
+
+* Cyriac (Eastern/Western/Estrangela)
+* Han (kr/hk/cn/tw/jp/vn)

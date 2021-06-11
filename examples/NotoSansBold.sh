@@ -1,4 +1,4 @@
-../sdf-glyph pbfs/NotoSansBold \
+../sdf-glyph pbfs/NotoSans-Bold \
 fonts/Noto-unhinted/NotoSans-Bold.ttf \
 fonts/Noto-unhinted/NotoSansArmenian-Bold.ttf \
 fonts/Noto-unhinted/NotoSansHebrew-Bold.ttf \

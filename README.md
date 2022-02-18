@@ -9,7 +9,7 @@ There is as little code here as possible, most of it is taken from [node-fontnik
 
 ## Installation
 
-Requires freetype and protobuf to be installed on your system.
+Requires freetype and protobuf version 3 to be installed on your system.
  
     git submodule init
     cmake .

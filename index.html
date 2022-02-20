@@ -1,0 +1,57 @@
+<html>
+    <head>
+    </head>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/>
+        <title>sdf-glyph-tool</title>
+        <script src="https://unpkg.com/vue@3"></script>
+        <script src="sdfglyph.js"></script>
+        <script src="https://unpkg.com/jszip@3.1.5/dist/jszip.min.js"></script>
+    </head>
+    <body>
+        <div class="sans-serif v-scroll bg-dark-gray flex" id="app">
+            <div class="w-50 vh-100 bg-light-gray pa4">
+                <input type="file" v-on:change="add_font"></input>
+            </div>
+            <div class="w-50 flex">
+                aaa
+            </div>
+        </div>
+        <script>
+            Vue.createApp({
+            data() {
+                return {
+                    message: 'Hello Vue!'
+                }
+            },
+            methods: {
+                add_font(event) {
+                    const file_reader = new FileReader();
+                    file_reader.onload = (event) => {
+                        const uint8Arr = new Uint8Array(event.target.result);
+                        const num_bytes = uint8Arr.length * uint8Arr.BYTES_PER_ELEMENT;
+                        const data_ptr = Module._malloc(num_bytes);
+                        const data_on_heap = new Uint8Array(Module.HEAPU8.buffer, data_ptr, num_bytes);
+                        data_on_heap.set(uint8Arr);
+                        console.log("Font set",data_ptr,num_bytes);
+
+                        const result_ptr = Module._malloc(8);
+                        const result_size = Module._malloc(8);
+                        const result_length = Module.ccall('read_face', null, ['number','number','number'], [data_ptr,num_bytes,result_ptr]);
+
+                        const str_on_heap = new Uint8Array(Module.HEAPU8.buffer, result_ptr, result_length);
+                        let str = new TextDecoder().decode(str_on_heap); 
+                        console.log(str);
+                    };
+                    file_reader.readAsArrayBuffer(event.target.files[0]);
+                }
+            }
+            }).mount('#app')
+
+          // import Protobuf from "https://cdn.skypack.dev/pbf@3.2.1";
+
+        </script>
+    </body>
+</html>

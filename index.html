@@ -11,26 +11,34 @@
         <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
         <script src="https://unpkg.com/pbf@3.2.1/dist/pbf.js"></script>
         <script src="js/glyphs.js"></script>
+        <style>
+            .wrapper {
+                width: 500px;
+            }
+            
+            .progress-bar {
+                width: 100%;
+                background-color: #e0e0e0;
+                padding: 3px;
+                box-shadow: inset 0 1px 3px rgba(0, 0, 0, .2);
+            }
+            
+            .progress-bar-fill {
+                display: block;
+                height: 22px;
+                background-color: #659cef;
+                transition: width 500ms ease-in-out;
+            }
+        </style>
     </head>
     <body>
-        <div class="sans-serif bg-dark-gray flex vh-100" id="app">
-            <div class="w-25 vh-100 bg-light-gray pa4">
-                <input type="file" v-on:change="add_font"></input>
-                Load Example : Noto Sans.ttf
-                <button v-on:click="download_zip">Download</button>
+        <div class="sans-serif bg-black flex vh-100" id="app">
 
-            </div>
-            <div class="w-75 overflow-y-scroll">
-                <div id="placeholder"></div>
-                <li v-for="file in rendered">
-                  {{ file.name }}
-                </li>
-            </div>
         </div>
         <script>
             var worker = new Worker('js/worker.js');
 
-            function pbfToCanvas(buffer) {
+            function pbfToCanvas(buffer,canv) {
                 var pbf = new Pbf(buffer);
                 var g = glyphs.read(pbf);
 
@@ -48,7 +56,6 @@
                         rows++;
                     }
                 }
-                var canv = document.createElement('canvas');
                 canv.height = (max_height + 6) * rows;
                 canv.width = 800;
                 var ctx = canv.getContext('2d');
@@ -74,19 +81,42 @@
                 return canv;
             }
 
-            // fetch('0-255.pbf').then(resp => {
-            //     return resp.arrayBuffer();
-            // }).then(buffer  => {
-            //     let canvas = pbfToCanvas(buffer);
-            //     document.getElementById("placeholder").appendChild(canvas);
-            // })
 
             let app = Vue.createApp({
             data() {
                 return {
-                    rendered: []
+                    rendered: [],
                 }
             },
+            components: {
+                'GlyphRange':
+                {
+                    props: ['name','buffer'],
+                    template: `
+                        <div>
+                        {{ name }}
+                        <canvas ref="canvas"/>
+                        </div>
+                    `,
+                    mounted() {
+                        let canvas = pbfToCanvas(this.buffer,this.$refs.canvas);
+                    } 
+                }
+            },
+            template: `
+                <div class="w-25-l w-50 vh-100 bg-light-gray pa4">
+                    <h1>SDF Glyph Tool</h1>
+                    <div class="bg-light-blue pa2 dim pointer" v-on:click="load_example">Load Example (NotoSans-Regular.ttf)</div>
+                    <input class="mt3" type="file" v-on:change="add_font"/>
+                    <div class="progress-bar mt4">
+                        <span class="progress-bar-fill" :style="{ width: pctDone + '%' }"></span>
+                    </div>
+                    <div v-if="done" class="bg-blue mt3 pa2 dim pointer" v-on:click="download_zip">Download</div>
+                </div>
+                <div class="w-75-l w-50 overflow-y-scroll white flex flex-column items-center">
+                    <GlyphRange v-for="file in rendered" :name="file.name" :buffer="file.buffer"/>
+                </div>
+            `,
             methods: {
                 add_font(event) {
                     const file_reader = new FileReader();
@@ -94,18 +124,37 @@
                         const uint8Arr = new Uint8Array(event.target.result);
                         worker.postMessage(uint8Arr, [uint8Arr.buffer]);
                     }
+                    this.fontName = event.target.files[0].name.slice(0,-4)
                     file_reader.readAsArrayBuffer(event.target.files[0]);
                 },
                 download_zip(event) {
+                    let fontName = this.fontName;
                     var zip = new JSZip();
-                    var folder = zip.folder("My Font Name");
+                    var folder = zip.folder(fontName);
                     for (var i of this.rendered) {
                         folder.file(i.name, i.buffer);
                     }
                     zip.generateAsync({type:"blob"})
                     .then(function(content) {
-                        saveAs(content, "My Font Name.zip");
+                        saveAs(content, fontName + ".zip");
                     }); 
+                },
+                load_example() {
+                    this.fontName = "NotoSans-Regular";
+                    fetch('examples/NotoSans-Regular.ttf').then(resp => {
+                        return resp.arrayBuffer();
+                    }).then(buffer => {
+                        const uint8Arr = new Uint8Array(buffer);
+                        worker.postMessage(uint8Arr, [uint8Arr.buffer]);
+                    });
+                }
+            },
+            computed: {
+                pctDone() {
+                    return this.rendered.length / 256 * 100;
+                },
+                done() {
+                    return this.rendered.length === 256;
                 }
             }
             }).mount('#app')
@@ -116,8 +165,6 @@
                     buffer:e.data.buffer,
                     name:i + "-" + (i + 255) + ".pbf"
                 })
-                let canvas = pbfToCanvas(e.data.buffer);
-                document.getElementById("placeholder").appendChild(canvas);
             };
         </script>
     </body>

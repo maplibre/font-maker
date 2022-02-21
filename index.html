@@ -7,51 +7,61 @@
         <link rel="stylesheet" href="https://unpkg.com/tachyons@4.12.0/css/tachyons.min.css"/>
         <title>sdf-glyph-tool</title>
         <script src="https://unpkg.com/vue@3"></script>
-        <script src="sdfglyph.js"></script>
         <script src="https://unpkg.com/jszip@3.1.5/dist/jszip.min.js"></script>
+        <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+        <script src="https://unpkg.com/pbf@3.2.1/dist/pbf.js"></script>
     </head>
     <body>
         <div class="sans-serif v-scroll bg-dark-gray flex" id="app">
-            <div class="w-50 vh-100 bg-light-gray pa4">
+            <div class="w-25 vh-100 bg-light-gray pa4">
                 <input type="file" v-on:change="add_font"></input>
             </div>
-            <div class="w-50 flex">
-                aaa
+            <div class="w-75">
+                <li v-for="file in rendered_glyphs">
+                  {{ file.name }}
+                </li>
+                <button v-on:click="download_zip">Download</button>
             </div>
         </div>
         <script>
-            Vue.createApp({
+            var worker = new Worker('worker.js');
+
+            let app = Vue.createApp({
             data() {
                 return {
-                    message: 'Hello Vue!'
+                    rendered_glyphs: []
                 }
             },
             methods: {
                 add_font(event) {
                     const file_reader = new FileReader();
-                    file_reader.onload = (event) => {
+                    file_reader.onload = function(event) {
                         const uint8Arr = new Uint8Array(event.target.result);
-                        const num_bytes = uint8Arr.length * uint8Arr.BYTES_PER_ELEMENT;
-                        const data_ptr = Module._malloc(num_bytes);
-                        const data_on_heap = new Uint8Array(Module.HEAPU8.buffer, data_ptr, num_bytes);
-                        data_on_heap.set(uint8Arr);
-                        console.log("Font set",data_ptr,num_bytes);
-
-                        const result_ptr = Module._malloc(8);
-                        const result_size = Module._malloc(8);
-                        const result_length = Module.ccall('read_face', null, ['number','number','number'], [data_ptr,num_bytes,result_ptr]);
-
-                        const str_on_heap = new Uint8Array(Module.HEAPU8.buffer, result_ptr, result_length);
-                        let str = new TextDecoder().decode(str_on_heap); 
-                        console.log(str);
-                    };
+                        worker.postMessage(uint8Arr, [uint8Arr.buffer]);
+                    }
                     file_reader.readAsArrayBuffer(event.target.files[0]);
+                },
+                download_zip(event) {
+                    var zip = new JSZip();
+                    var folder = zip.folder("My Font Name");
+                    for (var i of this.rendered_glyphs) {
+                        folder.file(i.name, i.buffer);
+                    }
+                    zip.generateAsync({type:"blob"})
+                    .then(function(content) {
+                        saveAs(content, "My Font Name.zip");
+                    }); 
                 }
             }
             }).mount('#app')
 
-          // import Protobuf from "https://cdn.skypack.dev/pbf@3.2.1";
-
+            worker.onmessage = function (e) {
+                let i = e.data.index;
+                app.rendered_glyphs.push({
+                    buffer:e.data.buffer,
+                    name:i + "-" + (i + 255) + ".pbf"
+                })
+            };
         </script>
     </body>
 </html>

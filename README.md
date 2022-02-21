@@ -1,20 +1,21 @@
 # sdf-glyph-tool
 
+Generates Signed Distance Field fonts for use in MapLibre GL, Mapbox GL, etc.
+
+Simply upload a font and convert; it runs 100% client-side via WebAssembly.
+
 There is as little code here as possible, most of it is taken from [node-fontnik](https://github.com/mapbox/node-fontnik).
 
 ## Usage
 
-    creates 0-255.pbf, 255-511.pbf, etc. in the "Noto" output directory.
-    sdf-glyph Noto Noto-unhinted/NotoSans-Regular.ttf
+Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and upload your file.
 
 ## Installation
 
-Requires freetype and protobuf version 3 to be installed on your system.
+Requires emsdk, freetype and boost to be on your system.
  
     git submodule init
-    cmake .
-    make
-    protoc glyphs.proto --cpp_out=.
+    ./build.sh
 
 ## Variants
 

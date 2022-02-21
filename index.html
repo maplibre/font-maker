@@ -10,26 +10,81 @@
         <script src="https://unpkg.com/jszip@3.1.5/dist/jszip.min.js"></script>
         <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
         <script src="https://unpkg.com/pbf@3.2.1/dist/pbf.js"></script>
+        <script src="js/glyphs.js"></script>
     </head>
     <body>
-        <div class="sans-serif v-scroll bg-dark-gray flex" id="app">
+        <div class="sans-serif bg-dark-gray flex vh-100" id="app">
             <div class="w-25 vh-100 bg-light-gray pa4">
                 <input type="file" v-on:change="add_font"></input>
+                Load Example : Noto Sans.ttf
+                <button v-on:click="download_zip">Download</button>
+
             </div>
-            <div class="w-75">
-                <li v-for="file in rendered_glyphs">
+            <div class="w-75 overflow-y-scroll">
+                <div id="placeholder"></div>
+                <li v-for="file in rendered">
                   {{ file.name }}
                 </li>
-                <button v-on:click="download_zip">Download</button>
             </div>
         </div>
         <script>
-            var worker = new Worker('worker.js');
+            var worker = new Worker('js/worker.js');
+
+            function pbfToCanvas(buffer) {
+                var pbf = new Pbf(buffer);
+                var g = glyphs.read(pbf);
+
+                let foo = g.stacks[0].glyphs;
+                let max_height = 0;
+                let rows = 1;
+                let current_x = 0;
+                for (var g of foo) {
+                    if (g.height > max_height) {
+                        max_height = g.height;
+                    }
+                    current_x = current_x + g.width + 6;
+                    if (current_x > 800) {
+                        current_x = 0;
+                        rows++;
+                    }
+                }
+                var canv = document.createElement('canvas');
+                canv.height = (max_height + 6) * rows;
+                canv.width = 800;
+                var ctx = canv.getContext('2d');
+
+                var xval = 0;
+                var yval = 0;
+                for (var g of foo) {
+                    if (!g.bitmap) continue;
+                    const img = new Uint8ClampedArray((g.height+6) * (g.width+6) * 4);
+                    for (var i = 0; i < (g.height + 6) * (g.width+6); i++) {
+                        img[i*4] = 255;
+                        img[i*4+1] = 255;
+                        img[i*4+2] = 255;
+                        img[i * 4 + 3] = g.bitmap[i];
+                    }
+                    if (xval + g.width + 6 > 800) {
+                        xval = 0;
+                        yval += (max_height + 6);
+                    }
+                    xval += g.width+6;
+                    ctx.putImageData(new ImageData(img,g.width+6),xval,yval)
+                }
+                return canv;
+            }
+
+            // fetch('0-255.pbf').then(resp => {
+            //     return resp.arrayBuffer();
+            // }).then(buffer  => {
+            //     let canvas = pbfToCanvas(buffer);
+            //     document.getElementById("placeholder").appendChild(canvas);
+            // })
 
             let app = Vue.createApp({
             data() {
                 return {
-                    rendered_glyphs: []
+                    rendered: []
                 }
             },
             methods: {
@@ -44,7 +99,7 @@
                 download_zip(event) {
                     var zip = new JSZip();
                     var folder = zip.folder("My Font Name");
-                    for (var i of this.rendered_glyphs) {
+                    for (var i of this.rendered) {
                         folder.file(i.name, i.buffer);
                     }
                     zip.generateAsync({type:"blob"})
@@ -57,10 +112,12 @@
 
             worker.onmessage = function (e) {
                 let i = e.data.index;
-                app.rendered_glyphs.push({
+                app.rendered.push({
                     buffer:e.data.buffer,
                     name:i + "-" + (i + 255) + ".pbf"
                 })
+                let canvas = pbfToCanvas(e.data.buffer);
+                document.getElementById("placeholder").appendChild(canvas);
             };
         </script>
     </body>

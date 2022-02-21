@@ -55,20 +55,24 @@ void do_codepoint(protozero::pbf_writer &parent, FT_Face face, FT_ULong char_cod
 
 string do_range(FT_Face face, unsigned start, unsigned end) {
     string fontstack_data;
-    protozero::pbf_writer fontstack{fontstack_data};
+    {
+        protozero::pbf_writer fontstack{fontstack_data};
 
-    fontstack.add_string(1,"");
-    fontstack.add_string(2,to_string(start) + "-" + to_string(end)); 
+        fontstack.add_string(1,"");
+        fontstack.add_string(2,to_string(start) + "-" + to_string(end)); 
 
-    for (unsigned x = start; x <= end; x++) {
-        FT_ULong char_code = x;
-        do_codepoint(fontstack,face, x);
+        for (unsigned x = start; x <= end; x++) {
+            FT_ULong char_code = x;
+            do_codepoint(fontstack,face, x);
+        }
     }
 
     string glyphs_data;
-    protozero::pbf_writer glyphs{glyphs_data};
-    glyphs.add_message(1,fontstack_data);
-    return fontstack_data;
+    {
+        protozero::pbf_writer glyphs{glyphs_data};
+        glyphs.add_message(1,fontstack_data);
+    }
+    return glyphs_data;
 }
 
 extern "C" {

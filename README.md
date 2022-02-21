@@ -8,7 +8,7 @@ There is as little code here as possible, most of it is taken from [node-fontnik
 
 ## Usage
 
-Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and upload your file.
+Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and select your file. Wait for the progress bar toc complete and download your ZIP.
 
 ## Installation
 

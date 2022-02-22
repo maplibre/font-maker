@@ -12,10 +12,16 @@ Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.git
 
 ## Installation
 
-Requires emsdk, freetype and boost to be on your system.
- 
-    git submodule init
-    ./build.sh
+You don't need to install anything to create SDF fonts, just use the page above. 
+
+If you want to compile the WebAssembly components from scratch, you'll need the following:
+
+* The [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) installed and activated on your machine (`emcc` on your path)
+* A [boost](https://www.boost.org) installation on your machine
+
+Clone this repository and all submodules with `git clone --recursive`
+
+Use `./build.sh` to build the WASM output. You may need to change line 2 of [build.sh](build.sh) to your local includes directory that has Boost. The default is the MacPorts-installed location (`/opt/local/include`)
 
 ## Variants
 

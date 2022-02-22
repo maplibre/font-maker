@@ -8,7 +8,7 @@ There is as little code here as possible, most of it is taken from [node-fontnik
 
 ## Usage
 
-Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and select your file. Wait for the progress bar toc complete and download your ZIP.
+Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and select your file. Wait for the progress bar to complete and download your ZIP.
 
 ## Installation
 
@@ -23,3 +23,6 @@ By specifying a font file you can control which variants are used for these scri
 
 * Cyriac (Eastern/Western/Estrangela)
 * Han (kr/hk/cn/tw/jp/vn)
+
+## TODO
+* Combine multiple font files

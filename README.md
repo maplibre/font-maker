@@ -1,16 +1,17 @@
-# sdf-glyph-tool
+# maplibre-font-maker
 
-Generates Signed Distance Field fonts for use in MapLibre GL, Mapbox GL, etc.
-
-Simply upload a font and convert; it runs 100% client-side via WebAssembly.
+The easiest way to turn your custom fonts into files compatible with [MapLibre GL](https://maplibre.org) (and Mapbox GL too).
 
 ## Usage
 
-Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and select your file. Wait for the progress bar to complete and download your ZIP.
+* Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and select your file. 
+* Wait for the progress bar to complete and download your ZIP containing all ranges for the font. 
 
 ## Installation
 
 You don't need to install anything to create SDF fonts, just use the page above. 
+
+For command line usage and developing, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Variants
 

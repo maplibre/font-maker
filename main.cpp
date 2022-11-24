@@ -1,3 +1,5 @@
+#define BOOST_NO_CXX98_FUNCTION_BASE
+// workaround unary_function in boost::geometry
 #include "mapbox/glyph_foundry.hpp"
 #include "mapbox/glyph_foundry_impl.hpp"
 #include <protozero/pbf_writer.hpp>

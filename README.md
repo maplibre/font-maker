@@ -21,7 +21,7 @@ If you want to compile the WebAssembly components from scratch, you'll need the 
 
 Clone this repository and all submodules with `git clone --recursive`
 
-Use `./build.sh` to build the WASM output. You may need to change line 2 of [build.sh](build.sh) to your local includes directory that has Boost. The default is the MacPorts-installed location (`/opt/local/include`)
+Use `./build.sh PATH_TO_INCLUDE_DIR` to build the WASM output, where `PATH_TO_INCLUDE_DIR` is the directory of your local Boost install.
 
 ## Variants
 

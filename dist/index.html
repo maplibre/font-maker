@@ -10,7 +10,7 @@
         <script src="https://unpkg.com/jszip@3.1.5/dist/jszip.min.js"></script>
         <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
         <script src="https://unpkg.com/pbf@3.2.1/dist/pbf.js"></script>
-        <script src="js/glyphs.js"></script>
+        <script src="glyphs.js"></script>
         <style>
             .wrapper {
                 width: 500px;
@@ -36,7 +36,7 @@
 
         </div>
         <script>
-            var worker = new Worker('js/worker.js');
+            var worker = new Worker('worker.js');
 
             function pbfToCanvas(buffer,canv) {
                 var pbf = new Pbf(buffer);

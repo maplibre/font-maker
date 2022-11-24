@@ -35,9 +35,7 @@ jobs:
         with:
           version: ${{env.EM_VERSION}}
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
-      - run: ls boost/boost/boost
-      - run: ls boost/boost/include/boost
-      - run: ./build.sh boost/boost
+      - run: ./build.sh boost/boost/include
       # - name: build_app
       #   uses: peaceiris/actions-gh-pages@v3
       #   if: ${{ github.ref == 'refs/heads/main' }}

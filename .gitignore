@@ -1,9 +1,7 @@
-glyphs.pb.cc
-glyphs.pb.h
 cmake_install.cmake
 Makefile
 CMakeFiles
 CMakeCache.txt
 *.pbf
-sdf-glyph
 dist/sdfglyph.*
+maplibre-font-maker

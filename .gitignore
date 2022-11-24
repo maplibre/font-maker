@@ -6,3 +6,4 @@ CMakeFiles
 CMakeCache.txt
 *.pbf
 sdf-glyph
+js/sdfglyph.*

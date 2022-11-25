@@ -5,7 +5,7 @@ project(maplibre-font-maker)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g")
 
-find_package(Boost 1.73)
+find_package(Boost 1.73 REQUIRED)
 find_package(Freetype REQUIRED)
 
 include_directories(vendor/cxxopts/include)

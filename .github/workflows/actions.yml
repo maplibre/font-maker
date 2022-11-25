@@ -36,7 +36,7 @@ jobs:
           version: ${{env.EM_VERSION}}
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
       - run: ./build.sh boost/boost/include
-      - run: cmake . && make
+      - run: Boost_INCLUDE_DIR=boost/boost/include cmake . && make
       - name: build_app
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/main' }}

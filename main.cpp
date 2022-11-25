@@ -4,6 +4,12 @@
 #include "mapbox/glyph_foundry_impl.hpp"
 #include <protozero/pbf_writer.hpp>
 
+#ifndef EMSCRIPTEN
+#include "ghc/filesystem.hpp"
+#include "cxxopts.hpp"
+#include <iostream>
+#endif
+
 using namespace std;
 
 void do_codepoint(protozero::pbf_writer &parent, FT_Face face, FT_ULong char_code) {
@@ -105,7 +111,43 @@ extern "C" {
     }
 }
 
+#ifndef EMSCRIPTEN
 int main(int argc, char *argv[])
 {
+    cxxopts::Options cmd_options("maplibre-font-maker", "Create font PBFs.");
+    cmd_options.add_options()
+        ("output", "Output directory", cxxopts::value<string>())
+        ("fonts", "Input fonts TTF or OTF", cxxopts::value<vector<string>>())
+    ;
+    cmd_options.parse_positional({"output","fonts"});
+    auto result = cmd_options.parse(argc, argv);
+    if (result.count("output") == 0 || result.count("fonts") == 0) {
+        cout << "usage: maplibre-font-maker OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
+        exit(1);
+    }
+    auto output = result["output"].as<string>();
+    auto fonts = result["fonts"].as<vector<string>>();
+
+    if (ghc::filesystem::exists(output)) {
+        cout << "ERROR: output directory " << output << " exists." << endl;
+        exit(1);
+    }
+    if (ghc::filesystem::exists(output)) ghc::filesystem::remove_all(output);
+    ghc::filesystem::create_directory(output);
+
+    std::ifstream file(fonts[0], std::ios::binary | std::ios::ate);
+    std::streamsize size = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<char> buffer(size);
+    if (file.read(buffer.data(), size))
+    {
+    }
+
+    char* generated = (char *)malloc(1024*1024);
+    generate_range((FT_Byte *)buffer.data(), size, 0, generated);
+    free(generated);
+
     return 0;
 }
+#endif

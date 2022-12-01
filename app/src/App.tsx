@@ -47,15 +47,6 @@ function App() {
   useEffect(() => { renderedRef.current = rendered });
   let [fontstackName, setFontstackName] = useState<string>("EMPTY");
 
-  function addFont(event: React.ChangeEvent<HTMLInputElement>) {
-    const file_reader = new FileReader();
-    file_reader.onload = function (loadEvent) {
-      const uint8Arr = new Uint8Array(loadEvent.target!.result as ArrayBuffer);
-      worker.postMessage(uint8Arr, [uint8Arr.buffer]);
-    };
-    file_reader.readAsArrayBuffer(event.target!.files![0]);
-  }
-
 
   useEffect(() => {
     if (rendered.length == 256) {
@@ -114,7 +105,18 @@ function App() {
     });
   }
 
+  function addFont(event: React.ChangeEvent<HTMLInputElement>) {
+    setRendered([]);
+    const file_reader = new FileReader();
+    file_reader.onload = function (loadEvent) {
+      const uint8Arr = new Uint8Array(loadEvent.target!.result as ArrayBuffer);
+      worker.postMessage(uint8Arr, [uint8Arr.buffer]);
+    };
+    file_reader.readAsArrayBuffer(event.target!.files![0]);
+  }
+
   function loadExample() {
+    setRendered([]);
     fetch("NotoSans-Regular.ttf")
       .then((resp) => {
         return resp.arrayBuffer();

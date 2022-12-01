@@ -115,9 +115,11 @@ function App() {
     file_reader.readAsArrayBuffer(event.target!.files![0]);
   }
 
+  const example_file = "Lato-Bold.ttf";
+
   function loadExample() {
     setRendered([]);
-    fetch("NotoSans-Regular.ttf")
+    fetch(example_file)
       .then((resp) => {
         return resp.arrayBuffer();
       })
@@ -133,7 +135,9 @@ function App() {
     sources: {
       demotiles: {
         type: "vector",
-        tiles: ["https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf"]
+        tiles: ["https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf"],
+        minzoom: 0,
+        maxzoom: 6
       },
     },
     layers: [
@@ -167,7 +171,7 @@ function App() {
       <div className="w-25-l w-50 vh-100 bg-light-gray pa4">
         <h1>Font Maker</h1>
         <div className="bg-light-blue pa2 dim pointer" onClick={loadExample}>
-          Load Example (NotoSans-Regular.ttf)
+          Load Example {example_file}
         </div>
         <input className="mt3" type="file" onChange={addFont} />
         <div className="mt4">Rendered: {rendered.length}</div>

@@ -39,14 +39,24 @@ type ResponseCallback = (
 ) => void;
 
 function App() {
-  const { myMap } = useMap();
-
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
+  let [textField, setTextField] = useState<string>("{NAME}");
+  let [textSize, setTextSize] = useState<number>(16);
   const renderedRef = useRef(rendered);
-  // make the state accessible in protocol hook.
-  useEffect(() => { renderedRef.current = rendered });
-  let [fontstackName, setFontstackName] = useState<string>("EMPTY");
 
+  const onChangeTextField = (event:React.ChangeEvent<HTMLInputElement>) => {
+    setTextField(event.target.value);
+  };
+
+  const onChangeTextSize= (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTextSize(+event.target.value);
+  };
+
+  // make the state accessible in protocol hook.
+  useEffect(() => {
+    renderedRef.current = rendered;
+  });
+  let [fontstackName, setFontstackName] = useState<string>("");
 
   useEffect(() => {
     if (rendered.length == 256) {
@@ -69,7 +79,6 @@ function App() {
     maplibregl.addProtocol(
       "memfont",
       (params: RequestParameters, callback: ResponseCallback) => {
-
         const re = new RegExp(/memfont:\/\/(.+)\/(\d+)-(\d+).pbf/);
         const result = params.url.match(re);
         if (result) {
@@ -82,8 +91,8 @@ function App() {
         }
         callback(null, new Uint8Array(), null, null);
         return {
-          cancel: () => {}
-        }
+          cancel: () => {},
+        };
       }
     );
 
@@ -137,7 +146,7 @@ function App() {
         type: "vector",
         tiles: ["https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf"],
         minzoom: 0,
-        maxzoom: 6
+        maxzoom: 6,
       },
     },
     layers: [
@@ -148,23 +157,27 @@ function App() {
         "source-layer": "countries",
         paint: {
           "fill-color": "#444",
-        }
-      },
-      {
-        id: "countries-label",
-        type: "symbol",
-        source: "demotiles",
-        "source-layer": "centroids",
-        layout: {
-          "text-font": [fontstackName],
-          "text-field": "{NAME}",
-        },
-        paint: {
-          "text-color": "white",
         },
       },
     ],
   } as any;
+
+  if (fontstackName) {
+    style.layers.push({
+      id: "countries-label",
+      type: "symbol",
+      source: "demotiles",
+      "source-layer": "centroids",
+      layout: {
+        "text-font": [fontstackName],
+        "text-field": textField,
+        "text-size": textSize
+      },
+      paint: {
+        "text-color": "white",
+      },
+    });
+  }
 
   return (
     <div className="sans-serif bg-black flex vh-100" id="app">
@@ -185,6 +198,8 @@ function App() {
         >
           Download
         </div>
+        <input type="text" value={textField} onChange={onChangeTextField} />
+        <input type="range" min="8" max="48" value={textSize} onChange={onChangeTextSize} />
         <div className="mt4">
           <a href="https://github.com/protomaps/maplibre-font-maker">
             On GitHub
@@ -194,8 +209,9 @@ function App() {
       <div className="w-75-l w-50 overflow-y-scroll white flex flex-column items-center">
         <Map
           mapLib={maplibregl}
-          RTLTextPlugin="https://cdn.protomaps.com/mapbox-gl-rtl-text/0.2.3/mapbox-gl-rtl-text.min.js"
+          RTLTextPlugin="mapbox-gl-rtl-text.min.js"
           mapStyle={style}
+          style={{ width: "100%", height: "100vh" }}
         >
           <NavigationControl />
         </Map>

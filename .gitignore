@@ -3,5 +3,5 @@ Makefile
 CMakeFiles
 CMakeCache.txt
 *.pbf
-dist/sdfglyph.*
+app/public/sdfglyph.*
 maplibre-font-maker

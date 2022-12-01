@@ -3,15 +3,11 @@ import "tachyons/css/tachyons.min.css";
 import Pbf from "pbf";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import {
-  Map,
-  NavigationControl,
-  AttributionControl,
-  useMap,
-} from "react-map-gl";
+import { Map, MapRef, NavigationControl, AttributionControl } from "react-map-gl";
 import maplibregl from "maplibre-gl";
 
 import "maplibre-gl/dist/maplibre-gl.css";
+import { styleFunc } from "./style";
 
 var worker = new Worker("worker.js");
 
@@ -43,12 +39,13 @@ function App() {
   let [textField, setTextField] = useState<string>("{NAME}");
   let [textSize, setTextSize] = useState<number>(16);
   const renderedRef = useRef(rendered);
+  const mapRef = useRef(null);
 
-  const onChangeTextField = (event:React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeTextField = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTextField(event.target.value);
   };
 
-  const onChangeTextSize= (event: React.ChangeEvent<HTMLInputElement>) => {
+  const onChangeTextSize = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTextSize(+event.target.value);
   };
 
@@ -138,56 +135,23 @@ function App() {
       });
   }
 
-  let style = {
-    version: 8,
-    glyphs: "memfont://{fontstack}/{range}.pbf",
-    sources: {
-      demotiles: {
-        type: "vector",
-        tiles: ["https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf"],
-        minzoom: 0,
-        maxzoom: 6,
-      },
-    },
-    layers: [
-      {
-        id: "countries",
-        type: "fill",
-        source: "demotiles",
-        "source-layer": "countries",
-        paint: {
-          "fill-color": "#444",
-        },
-      },
-    ],
-  } as any;
+  let style = styleFunc(
+    "memfont://{fontstack}/{range}.pbf",
+    fontstackName,
+    textSize,
+    textField
+  );
 
-  if (fontstackName) {
-    style.layers.push({
-      id: "countries-label",
-      type: "symbol",
-      source: "demotiles",
-      "source-layer": "centroids",
-      layout: {
-        "text-font": [fontstackName],
-        "text-field": textField,
-        "text-size": textSize
-      },
-      paint: {
-        "text-color": "white",
-      },
-    });
-  }
+  let progress = ((rendered.length / 256.0) * 100).toFixed();
 
   return (
-    <div className="sans-serif bg-black flex vh-100" id="app">
-      <div className="w-25-l w-50 vh-100 bg-light-gray pa4">
+    <main className="sans-serif flex vh-100" id="app">
+      <div className="w-25-l w-50 vh-100 pa4 bg-white">
         <h1>Font Maker</h1>
         <div className="bg-light-blue pa2 dim pointer" onClick={loadExample}>
           Load Example {example_file}
         </div>
         <input className="mt3" type="file" onChange={addFont} />
-        <div className="mt4">Rendered: {rendered.length}</div>
         <div className="progress-bar mt2">
           <span className="progress-bar-fill"></span>
         </div>
@@ -199,24 +163,38 @@ function App() {
           Download
         </div>
         <input type="text" value={textField} onChange={onChangeTextField} />
-        <input type="range" min="8" max="48" value={textSize} onChange={onChangeTextSize} />
+        <input
+          type="range"
+          min="8"
+          max="48"
+          value={textSize}
+          onChange={onChangeTextSize}
+        />
         <div className="mt4">
           <a href="https://github.com/protomaps/maplibre-font-maker">
             On GitHub
           </a>
         </div>
       </div>
-      <div className="w-75-l w-50 overflow-y-scroll white flex flex-column items-center">
+      <div className="w-75-l w-50 overflow-y-scroll white flex flex-column items-center relative">
         <Map
           mapLib={maplibregl}
           RTLTextPlugin="mapbox-gl-rtl-text.min.js"
           mapStyle={style}
-          style={{ width: "100%", height: "100vh" }}
+          ref={mapRef}
         >
           <NavigationControl />
         </Map>
+        {rendered.length < 256 ? (
+          <div
+            className="w-100 h-100 absolute bg-black flex items-center justify-center"
+            style={{ opacity: 0.3, zIndex: 2 }}
+          >
+            { progress }
+          </div>
+        ) : null}
       </div>
-    </div>
+    </main>
   );
 }
 

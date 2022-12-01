@@ -11,9 +11,12 @@
   "dependencies": {
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
+    "mapbox-gl": "npm:empty-npm-package@^1.0.0",
+    "maplibre-gl": "^2.4.0",
     "pbf": "^3.2.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-map-gl": "^7.0.19",
     "tachyons": "^4.12.0"
   },
   "devDependencies": {

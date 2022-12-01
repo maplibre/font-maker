@@ -1,24 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "tachyons/css/tachyons.min.css";
 import Pbf from "pbf";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
+import {
+  Map,
+  NavigationControl,
+  AttributionControl,
+  useMap,
+} from "react-map-gl";
+import maplibregl from "maplibre-gl";
+
+import "maplibre-gl/dist/maplibre-gl.css";
 
 var worker = new Worker("worker.js");
-
-function GlyphRange() {
-  return <div></div>;
-}
 
 interface RenderedGlyphs {
   name: string;
   buffer: ArrayBuffer;
 }
 
-function App() {
-  let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
+// copied from MapLibre /util/ajax.ts
+type RequestParameters = {
+  url: string;
+  headers?: any;
+  method?: "GET" | "POST" | "PUT";
+  body?: string;
+  type?: "string" | "json" | "arrayBuffer";
+  credentials?: "same-origin" | "include";
+  collectResourceTiming?: boolean;
+};
 
-  function addFont(event:React.ChangeEvent<HTMLInputElement>) {
+type ResponseCallback = (
+  error?: Error | null,
+  data?: any | null,
+  cacheControl?: string | null,
+  expires?: string | null
+) => void;
+
+function App() {
+  const { myMap } = useMap();
+
+  let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
+  const renderedRef = useRef(rendered);
+  // make the state accessible in protocol hook.
+  useEffect(() => { renderedRef.current = rendered });
+  let [fontstackName, setFontstackName] = useState<string>("EMPTY");
+
+  function addFont(event: React.ChangeEvent<HTMLInputElement>) {
     const file_reader = new FileReader();
     file_reader.onload = function (loadEvent) {
       const uint8Arr = new Uint8Array(loadEvent.target!.result as ArrayBuffer);
@@ -26,6 +55,14 @@ function App() {
     };
     file_reader.readAsArrayBuffer(event.target!.files![0]);
   }
+
+
+  useEffect(() => {
+    if (rendered.length == 256) {
+      let randomString = Math.random().toString(36).slice(2, 7);
+      setFontstackName(randomString);
+    }
+  }, [rendered]);
 
   useEffect(() => {
     worker.onmessage = function (e) {
@@ -38,12 +75,34 @@ function App() {
       });
     };
 
+    maplibregl.addProtocol(
+      "memfont",
+      (params: RequestParameters, callback: ResponseCallback) => {
+
+        const re = new RegExp(/memfont:\/\/(.+)\/(\d+)-(\d+).pbf/);
+        const result = params.url.match(re);
+        if (result) {
+          const fname = result[2] + "-" + result[3] + ".pbf";
+          for (let r of renderedRef.current) {
+            if (r.name === fname) {
+              callback(null, new Uint8Array(r.buffer), null, null);
+            }
+          }
+        }
+        callback(null, new Uint8Array(), null, null);
+        return {
+          cancel: () => {}
+        }
+      }
+    );
+
     return () => {
       worker.onmessage = null;
+      maplibregl.removeProtocol("memfont");
     };
   }, []);
 
-  function downloadZip(event:React.MouseEvent<HTMLElement>) {
+  function downloadZip(event: React.MouseEvent<HTMLElement>) {
     let fontName = "My Font Name";
     var zip = new JSZip();
     var folder = zip.folder(fontName)!;
@@ -66,6 +125,41 @@ function App() {
       });
   }
 
+  let style = {
+    version: 8,
+    glyphs: "memfont://{fontstack}/{range}.pbf",
+    sources: {
+      demotiles: {
+        type: "vector",
+        tiles: ["https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf"]
+      },
+    },
+    layers: [
+      {
+        id: "countries",
+        type: "fill",
+        source: "demotiles",
+        "source-layer": "countries",
+        paint: {
+          "fill-color": "#444",
+        }
+      },
+      {
+        id: "countries-label",
+        type: "symbol",
+        source: "demotiles",
+        "source-layer": "centroids",
+        layout: {
+          "text-font": [fontstackName],
+          "text-field": "{NAME}",
+        },
+        paint: {
+          "text-color": "white",
+        },
+      },
+    ],
+  } as any;
+
   return (
     <div className="sans-serif bg-black flex vh-100" id="app">
       <div className="w-25-l w-50 vh-100 bg-light-gray pa4">
@@ -74,9 +168,7 @@ function App() {
           Load Example (NotoSans-Regular.ttf)
         </div>
         <input className="mt3" type="file" onChange={addFont} />
-        <div className="mt4">
-          Rendered: {rendered.length}
-        </div>
+        <div className="mt4">Rendered: {rendered.length}</div>
         <div className="progress-bar mt2">
           <span className="progress-bar-fill"></span>
         </div>
@@ -94,7 +186,13 @@ function App() {
         </div>
       </div>
       <div className="w-75-l w-50 overflow-y-scroll white flex flex-column items-center">
-        <GlyphRange v-for="file in rendered" />
+        <Map
+          mapLib={maplibregl}
+          RTLTextPlugin="https://cdn.protomaps.com/mapbox-gl-rtl-text/0.2.3/mapbox-gl-rtl-text.min.js"
+          mapStyle={style}
+        >
+          <NavigationControl />
+        </Map>
       </div>
     </div>
   );

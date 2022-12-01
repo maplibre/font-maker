@@ -2,9 +2,11 @@
 
 The easiest way to turn your custom fonts into files compatible with [MapLibre GL](https://maplibre.org) (and Mapbox GL too).
 
+For other prepared fonts, look at [maplibre/demotiles/font](https://github.com/maplibre/demotiles/tree/gh-pages/font) instead.
+
 ## Usage
 
-* Go to the web app at [protomaps.github.io/sdf-glyph-tool/](https://protomaps.github.io/sdf-glyph-tool/) and select your file. 
+* Go to the web app at [protomaps.github.io/maplibre-font-maker/](https://protomaps.github.io/maplibre-font-maker/) and select your file. 
 * Wait for the progress bar to complete and download your ZIP containing all ranges for the font. 
 
 ## Installation

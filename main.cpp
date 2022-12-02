@@ -12,7 +12,9 @@
 
 using namespace std;
 
-void do_codepoint(protozero::pbf_writer &parent, FT_Face face, FT_ULong char_code) {
+void do_codepoint(protozero::pbf_writer &parent, std::vector<FT_Face> &faces, FT_ULong char_code) {
+        auto face = faces[0];
+
         FT_UInt char_index = FT_Get_Char_Index(face, char_code);
 
         if (!char_index) {
@@ -61,7 +63,7 @@ void do_codepoint(protozero::pbf_writer &parent, FT_Face face, FT_ULong char_cod
         parent.add_message(3,glyph_data);
 }
 
-string do_range(FT_Face face, char *name, unsigned start, unsigned end) {
+string do_range(std::vector<FT_Face> &faces, std::string name, unsigned start, unsigned end) {
     string fontstack_data;
     {
         protozero::pbf_writer fontstack{fontstack_data};
@@ -71,7 +73,7 @@ string do_range(FT_Face face, char *name, unsigned start, unsigned end) {
 
         for (unsigned x = start; x <= end; x++) {
             FT_ULong char_code = x;
-            do_codepoint(fontstack,face, x);
+            do_codepoint(fontstack,faces, x);
         }
     }
 
@@ -85,8 +87,9 @@ string do_range(FT_Face face, char *name, unsigned start, unsigned end) {
 
 struct fontstack {
     FT_Library library;
-    FT_Face face;
-    char *name;
+    std::vector<FT_Face> *faces;
+    std::set<std::string> *seen_face_names;
+    std::string *name;
 };
 
 struct glyph_buffer {
@@ -95,12 +98,22 @@ struct glyph_buffer {
 };
 
 extern "C" {
-    fontstack *create_fontstack(const FT_Byte *base, FT_Long data_size) {
+    fontstack *create_fontstack() {
         fontstack *f = (fontstack *)malloc(sizeof(fontstack));
+        f->faces = new std::vector<FT_Face>;
+        f->name = new std::string;
+        f->seen_face_names = new std::set<std::string>;
+
         FT_Library library = nullptr;
         FT_Error error = FT_Init_FreeType(&library);
+
+        f->library = library;
+        return f;
+    }
+
+    void fontstack_add_face(fontstack *f, FT_Byte *base, FT_Long data_size) {
         FT_Face face = 0;
-        FT_Error face_error = FT_New_Memory_Face(library, base, data_size, 0, &face);
+        FT_Error face_error = FT_New_Memory_Face(f->library, base, data_size, 0, &face);
         if (face_error) {
             throw runtime_error("Could not open font face");
         }
@@ -110,33 +123,40 @@ extern "C" {
         if (!face->family_name) {
             throw runtime_error("face does not have family name");
         }
-
-        std::string combined_name = std::string(face->family_name) + " " + std::string(face->style_name);
-        char *fname = (char *)malloc(combined_name.size() * sizeof(char));
-        strcpy(fname,combined_name.c_str());
-        f->name = fname;
-
-
         const double scale_factor = 1.0;
         double size = 24 * scale_factor;
         FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size * (1 << 6)), 0, 0);
-        f->library = library;
-        f->face = face;
-        return f;
+        f->faces->push_back(face);
+
+        std::string combined_name = std::string(face->family_name) + " " + std::string(face->style_name);
+        if (f->seen_face_names->count(combined_name) == 0) {
+            if (f->seen_face_names->size() > 0) {
+              *f->name += ",";
+            }
+            *f->name += combined_name;
+            f->seen_face_names->insert(combined_name);
+        }
     }
 
     void free_fontstack(fontstack *f) {
-        FT_Done_Face(f->face);
+        for (auto fc : *f->faces) {
+            FT_Done_Face(fc);
+        }
         FT_Done_FreeType(f->library);
+        delete f->faces;
+        delete f->name;
+        delete f->seen_face_names;
         free(f);
     }
 
     char *fontstack_name(fontstack *f) {
-        return f->name;
+        char *fname = (char *)malloc(f->name->size() * sizeof(char));
+        strcpy(fname,f->name->c_str());
+        return fname;
     }
 
     glyph_buffer *generate_glyph_buffer(fontstack *f, uint32_t start_codepoint) {
-        string result = do_range(f->face,f->name,start_codepoint,start_codepoint+255);
+        string result = do_range(*f->faces,*f->name,start_codepoint,start_codepoint+255);
 
         glyph_buffer *g = (glyph_buffer *)malloc(sizeof(glyph_buffer));
         char *result_ptr = (char *)malloc(result.size());
@@ -184,14 +204,17 @@ int main(int argc, char *argv[])
     if (ghc::filesystem::exists(output_dir)) ghc::filesystem::remove_all(output_dir);
     ghc::filesystem::create_directory(output_dir);
 
-    std::ifstream file(fonts[0], std::ios::binary | std::ios::ate);
-    std::streamsize size = file.tellg();
-    file.seekg(0, std::ios::beg);
+    fontstack *f = create_fontstack();
 
-    std::vector<char> buffer(size);
-    file.read(buffer.data(), size);
+    for (auto const &font : fonts) {
+        std::ifstream file(font, std::ios::binary | std::ios::ate);
+        std::streamsize size = file.tellg();
+        file.seekg(0, std::ios::beg);
 
-    fontstack *f = create_fontstack((FT_Byte *)buffer.data(),size);
+        std::vector<char> buffer(size);
+        file.read(buffer.data(), size);
+        fontstack_add_face(f,(FT_Byte *)buffer.data(),size);
+    }
 
     std::string fname{fontstack_name(f)};
 

@@ -174,28 +174,46 @@ int main(int argc, char *argv[])
         cout << "usage: maplibre-font-maker OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
         exit(1);
     }
-    auto output = result["output"].as<string>();
+    auto output_dir = result["output"].as<string>();
     auto fonts = result["fonts"].as<vector<string>>();
 
-    if (ghc::filesystem::exists(output)) {
-        cout << "ERROR: output directory " << output << " exists." << endl;
+    if (ghc::filesystem::exists(output_dir)) {
+        cout << "ERROR: output directory " << output_dir << " exists." << endl;
         exit(1);
     }
-    if (ghc::filesystem::exists(output)) ghc::filesystem::remove_all(output);
-    ghc::filesystem::create_directory(output);
+    if (ghc::filesystem::exists(output_dir)) ghc::filesystem::remove_all(output_dir);
+    ghc::filesystem::create_directory(output_dir);
 
     std::ifstream file(fonts[0], std::ios::binary | std::ios::ate);
     std::streamsize size = file.tellg();
     file.seekg(0, std::ios::beg);
 
     std::vector<char> buffer(size);
-    if (file.read(buffer.data(), size))
-    {
+    file.read(buffer.data(), size);
+
+    fontstack *f = create_fontstack((FT_Byte *)buffer.data(),size);
+
+    std::string fname{fontstack_name(f)};
+
+    ghc::filesystem::create_directory(output_dir + "/" + fname);
+
+    for (int i = 0; i < 65536; i += 256) {
+        glyph_buffer *g = generate_glyph_buffer(f,i);
+        char *data = glyph_buffer_data(g);
+        uint32_t buffer_size = glyph_buffer_size(g);
+
+        ofstream output;
+        std::string outname = output_dir + "/" + fname + "/" + to_string(i) + "-" + to_string(i+255) + ".pbf";
+        output.open(outname);
+        output.write(data,buffer_size);
+        output.close();
+
+        std::cout << "Wrote " << outname << std::endl;
+
+        free_glyph_buffer(g);
     }
 
-    // char* generated = (char *)malloc(1024*1024);
-    // generate_range((FT_Byte *)buffer.data(), size, 0, generated);
-    // free(generated);
+    free_fontstack(f);
 
     return 0;
 }

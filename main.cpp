@@ -163,7 +163,7 @@ extern "C" {
 #ifndef EMSCRIPTEN
 int main(int argc, char *argv[])
 {
-    cxxopts::Options cmd_options("maplibre-font-maker", "Create font PBFs.");
+    cxxopts::Options cmd_options("font-maker", "Create font PBFs.");
     cmd_options.add_options()
         ("output", "Output directory", cxxopts::value<string>())
         ("fonts", "Input fonts TTF or OTF", cxxopts::value<vector<string>>())
@@ -171,7 +171,7 @@ int main(int argc, char *argv[])
     cmd_options.parse_positional({"output","fonts"});
     auto result = cmd_options.parse(argc, argv);
     if (result.count("output") == 0 || result.count("fonts") == 0) {
-        cout << "usage: maplibre-font-maker OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
+        cout << "usage: font-maker OUTPUT_DIR INPUT_FONT [INPUT_FONT2 ...]" << endl;
         exit(1);
     }
     auto output_dir = result["output"].as<string>();

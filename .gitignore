@@ -4,4 +4,4 @@ CMakeFiles
 CMakeCache.txt
 *.pbf
 app/public/sdfglyph.*
-maplibre-font-maker
+font-maker

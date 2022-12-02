@@ -1,6 +1,8 @@
 importScripts("sdfglyph.js");
 
 self.onmessage = function (e) {
+  const fontstack_ptr = Module.ccall("create_fontstack", "number", [], []);
+
   const uint8Arr = e.data;
   const num_bytes = uint8Arr.length * uint8Arr.BYTES_PER_ELEMENT;
   const data_ptr = Module._malloc(num_bytes);
@@ -11,20 +13,26 @@ self.onmessage = function (e) {
   );
   data_on_heap.set(uint8Arr);
 
-  const ptr = Module.ccall(
-    "create_fontstack",
-    "number",
-    ["number", "number"],
-    [data_ptr, num_bytes]
+  Module.ccall(
+    "fontstack_add_face",
+    null,
+    ["number", "number", "number"],
+    [fontstack_ptr, data_ptr, num_bytes]
   );
-  const s = Module.ccall("fontstack_name", "number", ["number"], [ptr]);
+
+  const s = Module.ccall(
+    "fontstack_name",
+    "number",
+    ["number"],
+    [fontstack_ptr]
+  );
 
   for (var i = 0; i < 65536; i += 256) {
     const glyph_buffer_ptr = Module.ccall(
       "generate_glyph_buffer",
       "number",
       ["number", "number"],
-      [ptr, i]
+      [fontstack_ptr, i]
     );
     const glyph_buffer_data_ptr = Module.ccall(
       "glyph_buffer_data",
@@ -53,5 +61,7 @@ self.onmessage = function (e) {
       result.buffer,
     ]);
   }
-  Module.ccall("free_fontstack", "number", ["number"], [ptr]);
+
+  Module._free(s);
+  Module.ccall("free_fontstack", "number", ["number"], [fontstack_ptr]);
 };

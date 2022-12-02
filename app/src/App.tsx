@@ -3,7 +3,12 @@ import "tachyons/css/tachyons.min.css";
 import Pbf from "pbf";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { Map, MapRef, NavigationControl, AttributionControl } from "react-map-gl";
+import {
+  Map,
+  MapRef,
+  NavigationControl,
+  AttributionControl,
+} from "react-map-gl";
 import maplibregl from "maplibre-gl";
 
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -113,14 +118,15 @@ function App() {
     });
   }
 
-  function addFont(event: React.ChangeEvent<HTMLInputElement>) {
+  async function addFont(event: React.ChangeEvent<HTMLInputElement>) {
     setRendered([]);
-    const file_reader = new FileReader();
-    file_reader.onload = function (loadEvent) {
-      const uint8Arr = new Uint8Array(loadEvent.target!.result as ArrayBuffer);
-      worker.postMessage(uint8Arr, [uint8Arr.buffer]);
-    };
-    file_reader.readAsArrayBuffer(event.target!.files![0]);
+
+    let bufs = [];
+    for (let file of event.target.files!) {
+      console.log(file);
+      bufs.push(await file.arrayBuffer());
+    }
+    worker.postMessage(bufs);
   }
 
   const example_file = "Lato-Bold.ttf";
@@ -133,7 +139,7 @@ function App() {
       })
       .then((buffer) => {
         const uint8Arr = new Uint8Array(buffer);
-        worker.postMessage(uint8Arr, [uint8Arr.buffer]);
+        worker.postMessage([uint8Arr], [uint8Arr.buffer]);
       });
   }
 
@@ -153,7 +159,7 @@ function App() {
         <div className="bg-light-blue pa2 dim pointer" onClick={loadExample}>
           Load Example {example_file}
         </div>
-        <input className="mt3" type="file" onChange={addFont} />
+        <input className="mt3" type="file" onChange={addFont} multiple={true} />
         <div className="progress-bar mt2">
           <span className="progress-bar-fill"></span>
         </div>
@@ -193,7 +199,7 @@ function App() {
             className="w-100 h-100 absolute bg-black flex items-center justify-center"
             style={{ opacity: 0.3, zIndex: 2 }}
           >
-            { progress }
+            {progress}
           </div>
         ) : null}
       </div>

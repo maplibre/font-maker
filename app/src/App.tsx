@@ -38,6 +38,7 @@ function App() {
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
   let [textField, setTextField] = useState<string>("{NAME}");
   let [textSize, setTextSize] = useState<number>(16);
+  let [stackName, setStackName] = useState<string>("");
   const renderedRef = useRef(rendered);
   const mapRef = useRef(null);
 
@@ -65,6 +66,8 @@ function App() {
   useEffect(() => {
     worker.onmessage = function (e) {
       let i = e.data.index;
+
+      setStackName(e.data.name);
       setRendered((prevRendered) => {
         return [
           ...prevRendered,
@@ -100,14 +103,13 @@ function App() {
   }, []);
 
   function downloadZip(event: React.MouseEvent<HTMLElement>) {
-    let fontName = "My Font Name";
     var zip = new JSZip();
-    var folder = zip.folder(fontName)!;
+    var folder = zip.folder(stackName)!;
     for (var i of rendered) {
       folder.file(i.name, i.buffer);
     }
     zip.generateAsync({ type: "blob" }).then((content) => {
-      saveAs(content, fontName + ".zip");
+      saveAs(content, stackName + ".zip");
     });
   }
 
@@ -155,6 +157,7 @@ function App() {
         <div className="progress-bar mt2">
           <span className="progress-bar-fill"></span>
         </div>
+        {stackName}
         <div
           v-if="done"
           className="bg-blue mt3 pa2 dim pointer"

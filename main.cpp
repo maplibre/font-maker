@@ -7,8 +7,8 @@
 #ifndef EMSCRIPTEN
 #include "ghc/filesystem.hpp"
 #include "cxxopts.hpp"
-#include <iostream>
 #endif
+#include <iostream>
 
 using namespace std;
 
@@ -61,12 +61,12 @@ void do_codepoint(protozero::pbf_writer &parent, FT_Face face, FT_ULong char_cod
         parent.add_message(3,glyph_data);
 }
 
-string do_range(FT_Face face, unsigned start, unsigned end) {
+string do_range(FT_Face face, char *name, unsigned start, unsigned end) {
     string fontstack_data;
     {
         protozero::pbf_writer fontstack{fontstack_data};
 
-        fontstack.add_string(1,"");
+        fontstack.add_string(1,name);
         fontstack.add_string(2,to_string(start) + "-" + to_string(end)); 
 
         for (unsigned x = start; x <= end; x++) {
@@ -83,8 +83,20 @@ string do_range(FT_Face face, unsigned start, unsigned end) {
     return glyphs_data;
 }
 
+struct fontstack {
+    FT_Library library;
+    FT_Face face;
+    char *name;
+};
+
+struct glyph_buffer {
+    char *data;
+    uint32_t size;
+};
+
 extern "C" {
-    int generate_range(const FT_Byte *base, FT_Long data_size, uint32_t start_codepoint, char *result_ptr) {
+    fontstack *create_fontstack(const FT_Byte *base, FT_Long data_size) {
+        fontstack *f = (fontstack *)malloc(sizeof(fontstack));
         FT_Library library = nullptr;
         FT_Error error = FT_Init_FreeType(&library);
         FT_Face face = 0;
@@ -99,15 +111,52 @@ extern "C" {
             throw runtime_error("face does not have family name");
         }
 
+        std::string combined_name = std::string(face->family_name) + " " + std::string(face->style_name);
+        char *fname = (char *)malloc(combined_name.size() * sizeof(char));
+        strcpy(fname,combined_name.c_str());
+        f->name = fname;
+
+
         const double scale_factor = 1.0;
         double size = 24 * scale_factor;
         FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size * (1 << 6)), 0, 0);
+        f->library = library;
+        f->face = face;
+        return f;
+    }
 
-        string result = do_range(face,start_codepoint,start_codepoint+255);
+    void free_fontstack(fontstack *f) {
+        FT_Done_Face(f->face);
+        FT_Done_FreeType(f->library);
+        free(f);
+    }
+
+    char *fontstack_name(fontstack *f) {
+        return f->name;
+    }
+
+    glyph_buffer *generate_glyph_buffer(fontstack *f, uint32_t start_codepoint) {
+        string result = do_range(f->face,f->name,start_codepoint,start_codepoint+255);
+
+        glyph_buffer *g = (glyph_buffer *)malloc(sizeof(glyph_buffer));
+        char *result_ptr = (char *)malloc(result.size());
         result.copy(result_ptr,result.size());
-        FT_Done_Face(face);
-        FT_Done_FreeType(library);
-        return result.size();
+        g->data = result_ptr;
+        g->size = result.size();
+        return g;
+    }
+
+    char *glyph_buffer_data(glyph_buffer *g) {
+        return g->data;
+    }
+
+    uint32_t glyph_buffer_size(glyph_buffer *g) {
+        return g->size;
+    }
+
+    void free_glyph_buffer(glyph_buffer *g) {
+        free(g->data);
+        free(g);
     }
 }
 
@@ -144,9 +193,9 @@ int main(int argc, char *argv[])
     {
     }
 
-    char* generated = (char *)malloc(1024*1024);
-    generate_range((FT_Byte *)buffer.data(), size, 0, generated);
-    free(generated);
+    // char* generated = (char *)malloc(1024*1024);
+    // generate_range((FT_Byte *)buffer.data(), size, 0, generated);
+    // free(generated);
 
     return 0;
 }

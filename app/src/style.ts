@@ -332,7 +332,7 @@ export function styleFunc(
         "source-layer": "countries",
       },
       {
-        id: "countries-label",
+        id: "capitals-label",
         type: "symbol",
         paint: {
           "text-color": "rgba(8, 37, 77, 1)",
@@ -355,7 +355,6 @@ export function styleFunc(
           "text-font": [textFont],
           "text-size": textSize,
           "text-field": textField,
-          visibility: textFont ? "visible" : "none",
           "text-max-width": 10,
           "text-transform": {
             stops: [
@@ -364,10 +363,9 @@ export function styleFunc(
             ],
           },
         },
-        source: "maplibre",
+        source: "capitals",
         maxzoom: 24,
-        minzoom: 2,
-        "source-layer": "centroids",
+        minzoom: 2
       },
       {
         id: "crimea-fill",
@@ -383,6 +381,11 @@ export function styleFunc(
       maplibre: {
         url: "https://demotiles.maplibre.org/tiles/tiles.json",
         type: "vector",
+      },
+      capitals: {
+        type: "geojson",
+        data: "capitals.geojson",
+        attribution: '<a href="https://openstreetmap.org/copyright">© OpenStreetMap</a>'
       },
       crimea: {
         type: "geojson",

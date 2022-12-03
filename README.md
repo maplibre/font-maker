@@ -6,7 +6,7 @@ For other prepared fonts, look at [maplibre/demotiles/font](https://github.com/m
 
 ## Usage
 
-* Go to the web app at [protomaps.github.io/font-maker/](https://protomaps.github.io/font-maker/) and select your file.
+* Go to the web app at [maplibre.org/font-maker/](https://maplibre.org/font-maker/) and select your file.
 
 * Wait for the progress bar to complete and download your ZIP containing all ranges for the font. 
 

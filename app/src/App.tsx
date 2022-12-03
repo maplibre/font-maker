@@ -260,7 +260,7 @@ function App() {
           </div>
         </div>
         <div className="flex-grow-0">
-          <a href="https://github.com/protomaps/font-maker" target="_blank">
+          <a href="https://github.com/maplibre/font-maker" target="_blank">
             <img src="github.svg"></img>
           </a>
         </div>

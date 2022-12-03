@@ -4,8 +4,8 @@
 
 The WASM outputs `sdfglyph.js` and `sdfglyph.wasm` are not committed to git. To develop the web app locally download the compiled ones from GitHub pages:
 
-* [sdfglyph.js](https://protomaps.github.io/font-maker/sdfglyph.js)
-* [sdfglyph.wasm](https://protomaps.github.io/font-maker/sdfglyph.wasm)
+* [sdfglyph.js](https://maplibre.org/font-maker/sdfglyph.js)
+* [sdfglyph.wasm](https://maplibre.org/font-maker/sdfglyph.wasm)
 
 ## Building
 

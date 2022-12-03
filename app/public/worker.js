@@ -28,6 +28,8 @@ self.onmessage = function (e) {
     [fontstack_ptr]
   );
 
+  let stack_name = UTF8ToString(s);
+
   for (var i = 0; i < 65536; i += 256) {
     const glyph_buffer_ptr = Module.ccall(
       "generate_glyph_buffer",
@@ -57,8 +59,7 @@ self.onmessage = function (e) {
       )
     );
     Module.ccall("free_glyph_buffer", null, ["number"], [glyph_buffer_ptr]);
-
-    self.postMessage({ buffer: result, index: i, name: UTF8ToString(s) }, [
+    self.postMessage({ buffer: result, index: i, name: stack_name }, [
       result.buffer,
     ]);
   }

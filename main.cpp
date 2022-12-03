@@ -147,7 +147,7 @@ extern "C" {
     }
 
     char *fontstack_name(fontstack *f) {
-        char *fname = (char *)malloc(f->name->size() * sizeof(char));
+        char *fname = (char *)malloc((f->name->size()+1) * sizeof(char));
         strcpy(fname,f->name->c_str());
         return fname;
     }

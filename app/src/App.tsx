@@ -47,6 +47,7 @@ function App() {
   let [textSize, setTextSize] = useState<number>(16);
   let [stackName, setStackName] = useState<string>("");
   let [fileUploads, setFileUploads] = useState<File[]>([]);
+  let [inProgress, setInProgress] = useState<bool>(false);
 
   const renderedRef = useRef(rendered);
   const mapRef = useRef(null);
@@ -67,6 +68,7 @@ function App() {
 
   useEffect(() => {
     if (rendered.length === 256) {
+      setInProgress(false);
       let randomString = Math.random().toString(36).slice(2, 7);
       setFontstackName(randomString);
     }
@@ -135,6 +137,7 @@ function App() {
       bufs.push(await file.arrayBuffer());
     }
     worker.postMessage(bufs, bufs);
+    setInProgress(true);
   }
 
 
@@ -147,6 +150,7 @@ function App() {
       })
       .then((buffer) => {
         worker.postMessage([buffer], [buffer]);
+        setInProgress(true);
       });
   }
 
@@ -156,8 +160,6 @@ function App() {
     textSize,
     textField
   );
-
-  let progress = ((rendered.length / 256.0) * 100).toFixed();
 
   return (
     <main className="sans-serif flex vh-100" id="app">
@@ -201,9 +203,12 @@ function App() {
           >
             Convert
           </div>
-          <div className="progress-bar mt">
-            <span className="progress-bar-fill"></span>
-          </div>
+
+          { inProgress ? 
+          <div className="flex items-center mt3">
+            <div className="loadingspinner mr3"></div>
+            <div className="f6">{rendered.length} / 256 files...</div>
+          </div> : null }
 
           <div
             className={"mt4 pa2 br2 mb3 " + (rendered.length > 0 ? "bg-action dim pointer" : "bg-light-gray gray")}

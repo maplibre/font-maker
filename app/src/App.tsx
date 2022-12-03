@@ -154,38 +154,80 @@ function App() {
 
   return (
     <main className="sans-serif flex vh-100" id="app">
-      <div className="w-25-l w-50 vh-100 pa4 bg-white">
-        <h1>Font Maker</h1>
-        <div className="bg-light-blue pa2 dim pointer" onClick={loadExample}>
-          Load Example {example_file}
+      <div className="w-25-l w-50-m w-100 vh-100 pa3 bg-white flex flex-column">
+        <div className="flex-grow-1">
+          <h1>Font Maker</h1>
+          <label for="name" class="f6 b db mb2">
+            Load Examples
+          </label>
+          <div
+            className="ba b--black-20 pa2 dim br2 pointer mb3"
+            onClick={loadExample}
+          >
+            {example_file}
+          </div>
+
+          <label for="name" class="f6 b db mb2">
+            Upload .otf or .ttf files
+          </label>
+          <input
+            className=""
+            type="file"
+            onChange={addFont}
+            multiple={true}
+          />
+          <div
+            className="bg-action fw5 ba b--black-20 pa2 dim mt3 br2 pointer"
+            onClick={loadExample}
+          >
+            Convert
+          </div>
+          <div className="progress-bar mt">
+            <span className="progress-bar-fill"></span>
+          </div>
+
+          <div
+            className="bg-action mt4 pa2 dim ba b--black-20 br2 pointer mb2 fw5"
+            onClick={downloadZip}
+          >
+            Download {stackName}.zip
+          </div>
+          <div className="measure">
+            <label for="name" class="f6 b db mb2">
+              Test Label{" "}
+              <span class="normal black-60">default &#123;NAME&#125;</span>
+            </label>
+            <input
+              id="name"
+              className="input-reset ba b--black-20 pa2 mb2 db w-100"
+              type="text"
+              value={textField}
+              onChange={onChangeTextField}
+            ></input>
+          </div>
+
+          <div className="measure">
+            <label for="name" class="f6 b db mb2">
+              Text Size <span class="normal black-60">{textSize}px</span>
+            </label>
+            <input
+              id="name"
+              className="input-reset ba b--black-20 mb2 db w-100"
+              type="range"
+              min="8"
+              max="48"
+              value={textSize}
+              onChange={onChangeTextSize}
+            ></input>
+          </div>
         </div>
-        <input className="mt3" type="file" onChange={addFont} multiple={true} />
-        <div className="progress-bar mt2">
-          <span className="progress-bar-fill"></span>
-        </div>
-        {stackName}
-        <div
-          v-if="done"
-          className="bg-blue mt3 pa2 dim pointer"
-          onClick={downloadZip}
-        >
-          Download
-        </div>
-        <input type="text" value={textField} onChange={onChangeTextField} />
-        <input
-          type="range"
-          min="8"
-          max="48"
-          value={textSize}
-          onChange={onChangeTextSize}
-        />
-        <div className="mt4">
-          <a href="https://github.com/protomaps/maplibre-font-maker">
-            On GitHub
+        <div className="flex-grow-0">
+          <a href="https://github.com/protomaps/font-maker" target="_blank">
+            <img src="github.svg"></img>
           </a>
         </div>
       </div>
-      <div className="w-75-l w-50 overflow-y-scroll white flex flex-column items-center relative">
+      <div className="w-75-l w-50-m w-0 overflow-y-scroll white flex flex-column items-center relative">
         <Map
           mapLib={maplibregl}
           RTLTextPlugin="mapbox-gl-rtl-text.min.js"
@@ -194,14 +236,6 @@ function App() {
         >
           <NavigationControl />
         </Map>
-        {rendered.length < 256 ? (
-          <div
-            className="w-100 h-100 absolute bg-black flex items-center justify-center"
-            style={{ opacity: 0.3, zIndex: 2 }}
-          >
-            {progress}
-          </div>
-        ) : null}
       </div>
     </main>
   );

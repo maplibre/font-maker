@@ -43,8 +43,9 @@ const EXAMPLES = ["Barlow-Regular.ttf", "Lato-Bold.ttf"];
 
 function App() {
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
-  let [textField, setTextField] = useState<string>("{NAME}");
-  let [textSize, setTextSize] = useState<number>(16);
+  let [langCode, setLangCode] = useState<string>("{name}");
+  let [textField, setTextField] = useState<string>("");
+  let [textSize, setTextSize] = useState<number>(14);
   let [stackName, setStackName] = useState<string>("");
   let [fileUploads, setFileUploads] = useState<File[]>([]);
   let [inProgress, setInProgress] = useState<boolean>(false);
@@ -60,6 +61,10 @@ function App() {
     setTextSize(+event.target.value);
   };
 
+  const onChangeLangCode = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setLangCode(`{${event.target.value}}`);
+  };
+
   // make the state accessible in protocol hook.
   useEffect(() => {
     renderedRef.current = rendered;
@@ -69,8 +74,7 @@ function App() {
   useEffect(() => {
     if (rendered.length === 256) {
       setInProgress(false);
-      let randomString = Math.random().toString(36).slice(2, 7);
-      setFontstackName(randomString);
+      setFontstackName(Math.random().toString(36).slice(2, 7));
     }
   }, [rendered]);
 
@@ -93,14 +97,23 @@ function App() {
         const re = new RegExp(/memfont:\/\/(.+)\/(\d+)-(\d+).pbf/);
         const result = params.url.match(re);
         if (result) {
-          const fname = result[2] + "-" + result[3] + ".pbf";
-          for (let r of renderedRef.current) {
-            if (r.name === fname) {
-              callback(null, new Uint8Array(r.buffer), null, null);
+          if (result[1] === "Noto Sans Regular") {
+            fetch(
+              `https://demotiles.maplibre.org/font/Noto Sans Regular/${result[2]}-${result[3]}.pbf`
+            ).then((resp) => {
+              resp.arrayBuffer().then((a) => {
+                callback(null, new Uint8Array(a), null, null);
+              });
+            });
+          } else {
+            const fname = result[2] + "-" + result[3] + ".pbf";
+            for (let r of renderedRef.current) {
+              if (r.name === fname) {
+                callback(null, new Uint8Array(r.buffer), null, null);
+              }
             }
           }
         }
-        callback(null, new Uint8Array(), null, null);
         return {
           cancel: () => {},
         };
@@ -114,7 +127,7 @@ function App() {
   }, []);
 
   function downloadZip(event: React.MouseEvent<HTMLElement>) {
-    if (rendered.length === 0) return;
+    if (rendered.length !== 256) return;
     var zip = new JSZip();
     var folder = zip.folder(stackName)!;
     for (var i of rendered) {
@@ -155,9 +168,9 @@ function App() {
 
   let style = styleFunc(
     "memfont://{fontstack}/{range}.pbf",
-    fontstackName,
+    fontstackName || "Noto Sans Regular",
     textSize,
-    textField
+    textField || langCode
   );
 
   return (
@@ -230,10 +243,67 @@ function App() {
           >
             Download {stackName}.zip
           </div>
+
+          <div className="measure">
+            <label htmlFor="language" className="f6 b db mb2">
+              Language
+            </label>
+            <select id="language" value={langCode} onChange={onChangeLangCode} className="mb2 w-100">
+              <option value="">Default</option>
+              <option value="name:en">en</option>
+              <option value="name:ru">ru</option>
+              <option value="name:ar">ar</option>
+              <option value="name:zh-Hant,name:zh">zh-Hant,zh</option>
+              <option value="name:zh-Hans,name:zh">zh-Hans,zh</option>
+              <option value="name:ja">ja</option>
+              <option value="name:ko">ko</option>
+              <option value="name:fr">fr</option>
+              <option value="name:uk">uk</option>
+              <option value="name:de">de</option>
+              <option value="name:fi">fi</option>
+              <option value="name:pl">pl</option>
+              <option value="name:es">es</option>
+              <option value="name:be">be</option>
+              <option value="name:br">br</option>
+              <option value="name:he">he</option>
+              <option value="name:sr">sr</option>
+              <option value="name:sv">sv</option>
+              <option value="name:it">it</option>
+              <option value="name:ga">ga</option>
+              <option value="name:el">el</option>
+              <option value="name:kn">kn</option>
+              <option value="name:th">th</option>
+              <option value="name:nl">nl</option>
+              <option value="name:ca">ca</option>
+              <option value="name:hu">hu</option>
+              <option value="name:eu">eu</option>
+              <option value="name:oc">oc</option>
+              <option value="name:lt">lt</option>
+              <option value="name:cs">cs</option>
+              <option value="name:ro">ro</option>
+              <option value="name:hi">hi</option>
+              <option value="name:ka">ka</option>
+              <option value="name:fa">fa</option>
+              <option value="name:pt">pt</option>
+              <option value="name:my">my</option>
+              <option value="name:nan">nan</option>
+              <option value="name:ku">ku</option>
+              <option value="name:ur">ur</option>
+              <option value="name:vi">vi</option>
+              <option value="name:bg">bg</option>
+              <option value="name:hsb">hsb</option>
+              <option value="name:bo">bo</option>
+              <option value="name:hak">hak</option>
+              <option value="name:tay">tay</option>
+              <option value="name:szy">szy</option>
+              <option value="name:ami">ami</option>
+              <option value="name:se">se</option>
+            </select>
+          </div>
+
           <div className="measure">
             <label htmlFor="testLabel" className="f6 b db mb2">
-              Test Label{" "}
-              <span className="normal black-60">default &#123;NAME&#125;</span>
+              Test Label
             </label>
             <input
               id="testLabel"

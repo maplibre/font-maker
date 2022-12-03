@@ -37,7 +37,7 @@ jobs:
           actions-cache-folder: ${{env.EM_CACHE_FOLDER}}
       - run: ./build.sh boost/boost/include
       - run: BOOST_INCLUDEDIR=boost/boost/include cmake . && make
-      - run: cd app && npm install && npx tsc && npx vite build --base=/maplibre-font-maker/
+      - run: cd app && npm install && npx tsc && npx vite build --base=/font-maker/
       - name: build_app
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/main' }}

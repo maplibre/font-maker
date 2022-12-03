@@ -39,11 +39,15 @@ type ResponseCallback = (
   expires?: string | null
 ) => void;
 
+const EXAMPLES = ["Barlow-Regular.ttf","Lato-Bold.ttf"];
+
 function App() {
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
   let [textField, setTextField] = useState<string>("{NAME}");
   let [textSize, setTextSize] = useState<number>(16);
   let [stackName, setStackName] = useState<string>("");
+  let [fileUploads, setFileUploads] = useState<File[]>([]);
+
   const renderedRef = useRef(rendered);
   const mapRef = useRef(null);
 
@@ -62,7 +66,7 @@ function App() {
   let [fontstackName, setFontstackName] = useState<string>("");
 
   useEffect(() => {
-    if (rendered.length == 256) {
+    if (rendered.length === 256) {
       let randomString = Math.random().toString(36).slice(2, 7);
       setFontstackName(randomString);
     }
@@ -108,6 +112,7 @@ function App() {
   }, []);
 
   function downloadZip(event: React.MouseEvent<HTMLElement>) {
+    if (rendered.length === 0) return;
     var zip = new JSZip();
     var folder = zip.folder(stackName)!;
     for (var i of rendered) {
@@ -118,28 +123,30 @@ function App() {
     });
   }
 
-  async function addFont(event: React.ChangeEvent<HTMLInputElement>) {
+  function addFiles(event: React.ChangeEvent<HTMLInputElement>) {
     setRendered([]);
-
-    let bufs = [];
-    for (let file of event.target.files!) {
-      console.log(file);
-      bufs.push(await file.arrayBuffer());
-    }
-    worker.postMessage(bufs);
+    setFileUploads([...fileUploads, ...event.target.files!]);
   }
 
-  const example_file = "Lato-Bold.ttf";
+  async function runFilesConvert() {
+    if (fileUploads.length === 0) return;
+    let bufs: ArrayBuffer[] = [];
+    for (let file of fileUploads) {
+      bufs.push(await file.arrayBuffer());
+    }
+    worker.postMessage(bufs, bufs);
+  }
 
-  function loadExample() {
+
+  function loadExample(example: string) {
+    setFileUploads([]);
     setRendered([]);
-    fetch(example_file)
+    fetch(example)
       .then((resp) => {
         return resp.arrayBuffer();
       })
       .then((buffer) => {
-        const uint8Arr = new Uint8Array(buffer);
-        worker.postMessage([uint8Arr], [uint8Arr.buffer]);
+        worker.postMessage([buffer], [buffer]);
       });
   }
 
@@ -157,28 +164,40 @@ function App() {
       <div className="w-25-l w-50-m w-100 vh-100 pa3 bg-white flex flex-column">
         <div className="flex-grow-1">
           <h1>Font Maker</h1>
-          <label for="name" class="f6 b db mb2">
-            Load Examples
-          </label>
-          <div
-            className="ba b--black-20 pa2 dim br2 pointer mb3"
-            onClick={loadExample}
-          >
-            {example_file}
-          </div>
+          <label className="f6 b db mb2">Load Examples</label>
 
-          <label for="name" class="f6 b db mb2">
+          {EXAMPLES.map(function (example, i) {
+            return (
+              <div
+                className="ba b--black-20 pa2 dim br2 pointer mb1 f6"
+                onClick={() => {
+                  loadExample(example);
+                }}
+                key={i}
+              >
+                {example}
+              </div>
+            );
+          })}
+
+          <label htmlFor="addFonts" className="f6 b db mb2 mt3">
             Upload .otf or .ttf files
           </label>
           <input
-            className=""
+            id="addFonts"
             type="file"
-            onChange={addFont}
+            accept=".otf,.ttf"
+            onChange={addFiles}
             multiple={true}
           />
+
+          {fileUploads.map(function (fileUpload, i) {
+            return <div className="mt2 f6" key={i}>{fileUpload.name}</div>;
+          })}
+
           <div
-            className="bg-action fw5 ba b--black-20 pa2 dim mt3 br2 pointer"
-            onClick={loadExample}
+            className={"pa2 mt3 br2 " + (fileUploads.length > 0 ? "dim bg-action pointer" : "bg-light-gray gray") } 
+            onClick={runFilesConvert}
           >
             Convert
           </div>
@@ -187,18 +206,18 @@ function App() {
           </div>
 
           <div
-            className="bg-action mt4 pa2 dim ba b--black-20 br2 pointer mb2 fw5"
+            className={"mt4 pa2 br2 mb3 " + (rendered.length > 0 ? "bg-action dim pointer" : "bg-light-gray gray")}
             onClick={downloadZip}
           >
             Download {stackName}.zip
           </div>
           <div className="measure">
-            <label for="name" class="f6 b db mb2">
+            <label htmlFor="testLabel" className="f6 b db mb2">
               Test Label{" "}
-              <span class="normal black-60">default &#123;NAME&#125;</span>
+              <span className="normal black-60">default &#123;NAME&#125;</span>
             </label>
             <input
-              id="name"
+              id="testLabel"
               className="input-reset ba b--black-20 pa2 mb2 db w-100"
               type="text"
               value={textField}
@@ -207,11 +226,11 @@ function App() {
           </div>
 
           <div className="measure">
-            <label for="name" class="f6 b db mb2">
-              Text Size <span class="normal black-60">{textSize}px</span>
+            <label htmlFor="textSize" className="f6 b db mb2">
+              Text Size <span className="normal black-60">{textSize}px</span>
             </label>
             <input
-              id="name"
+              id="textSize"
               className="input-reset ba b--black-20 mb2 db w-100"
               type="range"
               min="8"

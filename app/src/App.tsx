@@ -39,7 +39,7 @@ type ResponseCallback = (
   expires?: string | null
 ) => void;
 
-const EXAMPLES = ["Barlow-Regular.ttf","Lato-Bold.ttf"];
+const EXAMPLES = ["Barlow-Regular.ttf", "Lato-Bold.ttf"];
 
 function App() {
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
@@ -47,7 +47,7 @@ function App() {
   let [textSize, setTextSize] = useState<number>(16);
   let [stackName, setStackName] = useState<string>("");
   let [fileUploads, setFileUploads] = useState<File[]>([]);
-  let [inProgress, setInProgress] = useState<bool>(false);
+  let [inProgress, setInProgress] = useState<boolean>(false);
 
   const renderedRef = useRef(rendered);
   const mapRef = useRef(null);
@@ -140,7 +140,6 @@ function App() {
     setInProgress(true);
   }
 
-
   function loadExample(example: string) {
     setFileUploads([]);
     setRendered([]);
@@ -194,24 +193,39 @@ function App() {
           />
 
           {fileUploads.map(function (fileUpload, i) {
-            return <div className="mt2 f6" key={i}>{fileUpload.name}</div>;
+            return (
+              <div className="mt2 f6" key={i}>
+                {fileUpload.name}
+              </div>
+            );
           })}
 
           <div
-            className={"pa2 mt3 br2 " + (fileUploads.length > 0 ? "dim bg-action pointer" : "bg-light-gray gray") } 
+            className={
+              "pa2 mt3 br2 " +
+              (fileUploads.length > 0
+                ? "dim bg-action pointer"
+                : "bg-light-gray gray")
+            }
             onClick={runFilesConvert}
           >
             Convert
           </div>
 
-          { inProgress ? 
-          <div className="flex items-center mt3">
-            <div className="loadingspinner mr3"></div>
-            <div className="f6">{rendered.length} / 256 files...</div>
-          </div> : null }
+          {inProgress ? (
+            <div className="flex items-center mt3">
+              <div className="loadingspinner mr3"></div>
+              <div className="f6">{rendered.length} / 256 files...</div>
+            </div>
+          ) : null}
 
           <div
-            className={"mt4 pa2 br2 mb3 " + (rendered.length > 0 ? "bg-action dim pointer" : "bg-light-gray gray")}
+            className={
+              "mt4 pa2 br2 mb3 " +
+              (rendered.length === 256
+                ? "bg-action dim pointer"
+                : "bg-light-gray gray")
+            }
             onClick={downloadZip}
           >
             Download {stackName}.zip

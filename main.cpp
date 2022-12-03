@@ -13,54 +13,51 @@
 using namespace std;
 
 void do_codepoint(protozero::pbf_writer &parent, std::vector<FT_Face> &faces, FT_ULong char_code) {
-        auto face = faces[0];
-
+    for (auto const &face : faces) {
         FT_UInt char_index = FT_Get_Char_Index(face, char_code);
+        if (char_index > 0) {
+            sdf_glyph_foundry::glyph_info glyph;
+            glyph.glyph_index = char_index;
+            sdf_glyph_foundry::RenderSDF(glyph, 24, 3, 0.25, face);
 
-        if (!char_index) {
-            return;
+            string glyph_data;
+            protozero::pbf_writer glyph_message{glyph_data};
+
+            // direct type conversions, no need for checking or casting
+            glyph_message.add_uint32(3,glyph.width);
+            glyph_message.add_uint32(4,glyph.height);
+            glyph_message.add_sint32(5,glyph.left);
+
+            // conversions requiring checks, for safety and correctness
+
+            // shortening conversion
+            if (char_code > numeric_limits<FT_ULong>::max()) {
+                throw runtime_error("Invalid value for char_code: too large");
+            } else {
+                glyph_message.add_uint32(1,static_cast<uint32_t>(char_code));
+            }
+
+            // double to int
+            double top = static_cast<double>(glyph.top) - glyph.ascender;
+            if (top < numeric_limits<int32_t>::min() || top > numeric_limits<int32_t>::max()) {
+                throw runtime_error("Invalid value for glyph.top-glyph.ascender");
+            } else {
+                glyph_message.add_sint32(6,static_cast<int32_t>(top));
+            }
+
+            // double to uint
+            if (glyph.advance < numeric_limits<uint32_t>::min() || glyph.advance > numeric_limits<uint32_t>::max()) {
+                throw runtime_error("Invalid value for glyph.top-glyph.ascender");
+            } else {
+                glyph_message.add_uint32(7,static_cast<uint32_t>(glyph.advance));
+            }
+
+            if (glyph.width > 0) {
+                glyph_message.add_bytes(2,glyph.bitmap);
+            }
+            parent.add_message(3,glyph_data);
         }
-
-        sdf_glyph_foundry::glyph_info glyph;
-        glyph.glyph_index = char_index;
-        sdf_glyph_foundry::RenderSDF(glyph, 24, 3, 0.25, face);
-
-        string glyph_data;
-        protozero::pbf_writer glyph_message{glyph_data};
-
-        // direct type conversions, no need for checking or casting
-        glyph_message.add_uint32(3,glyph.width);
-        glyph_message.add_uint32(4,glyph.height);
-        glyph_message.add_sint32(5,glyph.left);
-
-        // conversions requiring checks, for safety and correctness
-
-        // shortening conversion
-        if (char_code > numeric_limits<FT_ULong>::max()) {
-            throw runtime_error("Invalid value for char_code: too large");
-        } else {
-            glyph_message.add_uint32(1,static_cast<uint32_t>(char_code));
-        }
-
-        // double to int
-        double top = static_cast<double>(glyph.top) - glyph.ascender;
-        if (top < numeric_limits<int32_t>::min() || top > numeric_limits<int32_t>::max()) {
-            throw runtime_error("Invalid value for glyph.top-glyph.ascender");
-        } else {
-            glyph_message.add_sint32(6,static_cast<int32_t>(top));
-        }
-
-        // double to uint
-        if (glyph.advance < numeric_limits<uint32_t>::min() || glyph.advance > numeric_limits<uint32_t>::max()) {
-            throw runtime_error("Invalid value for glyph.top-glyph.ascender");
-        } else {
-            glyph_message.add_uint32(7,static_cast<uint32_t>(glyph.advance));
-        }
-
-        if (glyph.width > 0) {
-            glyph_message.add_bytes(2,glyph.bitmap);
-        }
-        parent.add_message(3,glyph_data);
+    }
 }
 
 string do_range(std::vector<FT_Face> &faces, std::string name, unsigned start, unsigned end) {

@@ -62,7 +62,7 @@ function App() {
   };
 
   const onChangeLangCode = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setLangCode(`{${event.target.value}}`);
+    setLangCode(event.target.value);
   };
 
   // make the state accessible in protocol hook.
@@ -170,7 +170,7 @@ function App() {
     "memfont://{fontstack}/{range}.pbf",
     fontstackName || "Noto Sans Regular",
     textSize,
-    textField || langCode
+    textField || "{" + langCode + "}"
   );
 
   return (
@@ -248,7 +248,12 @@ function App() {
             <label htmlFor="language" className="f6 b db mb2">
               Language
             </label>
-            <select id="language" value={langCode} onChange={onChangeLangCode} className="mb2 w-100">
+            <select
+              id="language"
+              value={langCode}
+              onChange={onChangeLangCode}
+              className="mb2 w-100"
+            >
               <option value="">Default</option>
               <option value="name:en">en</option>
               <option value="name:ru">ru</option>

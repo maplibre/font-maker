@@ -6,9 +6,9 @@ export function styleFunc(
 ):any {
   return {
     name: "MapLibre",
-    zoom: 3,
+    zoom: 0,
     pitch: 0,
-    center: [17.65431710431244, 32.954120326746775],
+    center: [0,0],
     glyphs: glyphs,
     layers: [
       {
@@ -354,18 +354,11 @@ export function styleFunc(
         layout: {
           "text-font": [textFont],
           "text-size": textSize,
-          "text-field": textField,
-          "text-max-width": 10,
-          "text-transform": {
-            stops: [
-              [0, "uppercase"],
-              [2, "none"],
-            ],
-          },
+          "text-field": textField
         },
         source: "capitals",
         maxzoom: 24,
-        minzoom: 2
+        minzoom: 0
       },
       {
         id: "crimea-fill",
@@ -384,8 +377,8 @@ export function styleFunc(
       },
       capitals: {
         type: "geojson",
-        data: "capitals.geojson",
-        attribution: '<a href="https://openstreetmap.org/copyright">© OpenStreetMap</a>'
+        data: "capitals_filtered.geojson",
+        attribution: '<a href="https://openstreetmap.org/copyright">City data © OpenStreetMap</a>'
       },
       crimea: {
         type: "geojson",

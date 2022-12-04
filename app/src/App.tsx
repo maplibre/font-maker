@@ -69,12 +69,12 @@ function App() {
   useEffect(() => {
     renderedRef.current = rendered;
   });
-  let [fontstackName, setFontstackName] = useState<string>("");
+  let [randomInternalName, setRandomInternalName] = useState<string>("");
 
   useEffect(() => {
     if (rendered.length === 256) {
       setInProgress(false);
-      setFontstackName(Math.random().toString(36).slice(2, 7));
+      setRandomInternalName(Math.random().toString(36).slice(2, 7));
     }
   }, [rendered]);
 
@@ -107,11 +107,11 @@ function App() {
             });
           } else {
             const fname = result[2] + "-" + result[3] + ".pbf";
-            for (let r of renderedRef.current) {
-              if (r.name === fname) {
-                callback(null, new Uint8Array(r.buffer), null, null);
-              }
-            }
+            let match = renderedRef.current.find((r) => r.name === fname);
+            setTimeout(() => {
+              if (!match) throw Error("Can't find range");
+              callback(null, new Uint8Array(match.buffer), null, null);
+            }, 0);
           }
         }
         return {
@@ -168,7 +168,7 @@ function App() {
 
   let style = styleFunc(
     "memfont://{fontstack}/{range}.pbf",
-    fontstackName || "Noto Sans Regular",
+    randomInternalName || "Noto Sans Regular",
     textSize,
     textField || "{" + langCode + "}"
   );

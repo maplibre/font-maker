@@ -5,12 +5,9 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import {
   Map,
-  MapRef,
-  NavigationControl,
-  AttributionControl,
+  NavigationControl
 } from "react-map-gl";
 import maplibregl from "maplibre-gl";
-
 import "maplibre-gl/dist/maplibre-gl.css";
 import { styleFunc } from "./style";
 
@@ -43,7 +40,7 @@ const EXAMPLES = ["Barlow-Regular.ttf", "Lato-Bold.ttf"];
 
 function App() {
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
-  let [langCode, setLangCode] = useState<string>("{name}");
+  let [langCode, setLangCode] = useState<string>("name");
   let [textField, setTextField] = useState<string>("");
   let [textSize, setTextSize] = useState<number>(14);
   let [stackName, setStackName] = useState<string>("");
@@ -51,7 +48,6 @@ function App() {
   let [inProgress, setInProgress] = useState<boolean>(false);
 
   const renderedRef = useRef(rendered);
-  const mapRef = useRef(null);
 
   const onChangeTextField = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTextField(event.target.value);
@@ -254,12 +250,12 @@ function App() {
               onChange={onChangeLangCode}
               className="mb2 w-100"
             >
-              <option value="">Default</option>
+              <option value="name">default</option>
               <option value="name:en">en</option>
               <option value="name:ru">ru</option>
               <option value="name:ar">ar</option>
-              <option value="name:zh-Hant,name:zh">zh-Hant,zh</option>
-              <option value="name:zh-Hans,name:zh">zh-Hans,zh</option>
+              <option value="name:zh-Hant">zh-Hant</option>
+              <option value="name:zh-Hans">zh-Hans</option>
               <option value="name:ja">ja</option>
               <option value="name:ko">ko</option>
               <option value="name:fr">fr</option>
@@ -345,7 +341,6 @@ function App() {
           mapLib={maplibregl}
           RTLTextPlugin="mapbox-gl-rtl-text.min.js"
           mapStyle={style}
-          ref={mapRef}
         >
           <NavigationControl />
         </Map>

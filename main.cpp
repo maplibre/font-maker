@@ -56,6 +56,7 @@ void do_codepoint(protozero::pbf_writer &parent, std::vector<FT_Face> &faces, FT
                 glyph_message.add_bytes(2,glyph.bitmap);
             }
             parent.add_message(3,glyph_data);
+            return;
         }
     }
 }
@@ -125,7 +126,11 @@ extern "C" {
         FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size * (1 << 6)), 0, 0);
         f->faces->push_back(face);
 
-        std::string combined_name = std::string(face->family_name) + " " + std::string(face->style_name);
+        std::string combined_name = std::string(face->family_name);
+        if (face->style_name != NULL) {
+            combined_name += " " + std::string(face->style_name);
+        }
+
         if (f->seen_face_names->count(combined_name) == 0) {
             if (f->seen_face_names->size() > 0) {
               *f->name += ",";

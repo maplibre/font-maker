@@ -3,10 +3,7 @@ import "tachyons/css/tachyons.min.css";
 import Pbf from "pbf";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import {
-  Map,
-  NavigationControl
-} from "react-map-gl";
+import { Map, NavigationControl } from "react-map-gl";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { styleFunc } from "./style";
@@ -139,6 +136,10 @@ function App() {
     setFileUploads([...fileUploads, ...event.target.files!]);
   }
 
+  function clearFileInput() {
+    setFileUploads([]);
+  }
+
   async function runFilesConvert() {
     if (fileUploads.length === 0) return;
     let bufs: ArrayBuffer[] = [];
@@ -208,6 +209,12 @@ function App() {
               </div>
             );
           })}
+
+          {fileUploads.length > 0 ? (
+            <button className="f6 mt2" onClick={clearFileInput}>
+              Clear
+            </button>
+          ) : null}
 
           <div
             className={

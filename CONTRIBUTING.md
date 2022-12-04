@@ -7,7 +7,7 @@ The WASM outputs `sdfglyph.js` and `sdfglyph.wasm` are not committed to git. To 
 * [sdfglyph.js](https://maplibre.org/font-maker/sdfglyph.js)
 * [sdfglyph.wasm](https://maplibre.org/font-maker/sdfglyph.wasm)
 
-## Building
+## Building WASM
 
 If you want to compile the WebAssembly components from scratch, you'll need the following:
 
@@ -16,5 +16,11 @@ If you want to compile the WebAssembly components from scratch, you'll need the 
 
 Clone this repository and all submodules with `git clone --recursive`
 
-Use `./build.sh PATH_TO_INCLUDE_DIR` to build the WASM output, where `PATH_TO_INCLUDE_DIR` is the directory of your local Boost install.
+Use `./build_wasm.sh PATH_TO_INCLUDE_DIR` to build the WASM output, where `PATH_TO_INCLUDE_DIR` is the directory of your local Boost install. example: `./build_wasm.sh /opt/local/include`
 
+## Building command line
+
+```
+cmake .
+make
+```

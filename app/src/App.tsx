@@ -37,14 +37,21 @@ const EXAMPLES = ["Barlow-Regular.ttf", "Lato-Bold.ttf"];
 
 function App() {
   let [rendered, setRendered] = useState<RenderedGlyphs[]>([]);
+  let [stackName, setStackName] = useState<string>("");
+  let [randomInternalName, setRandomInternalName] = useState<string>("");
+  let [inProgress, setInProgress] = useState<boolean>(false);
+
+  // user input.
+  let [fileUploads, setFileUploads] = useState<File[]>([]);
   let [langCode, setLangCode] = useState<string>("name");
   let [textField, setTextField] = useState<string>("");
   let [textSize, setTextSize] = useState<number>(14);
-  let [stackName, setStackName] = useState<string>("");
-  let [fileUploads, setFileUploads] = useState<File[]>([]);
-  let [inProgress, setInProgress] = useState<boolean>(false);
 
+  // make the state accessible in protocol hook.
   const renderedRef = useRef(rendered);
+  useEffect(() => {
+    renderedRef.current = rendered;
+  });
 
   const onChangeTextField = (event: React.ChangeEvent<HTMLInputElement>) => {
     setTextField(event.target.value);
@@ -57,12 +64,6 @@ function App() {
   const onChangeLangCode = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setLangCode(event.target.value);
   };
-
-  // make the state accessible in protocol hook.
-  useEffect(() => {
-    renderedRef.current = rendered;
-  });
-  let [randomInternalName, setRandomInternalName] = useState<string>("");
 
   useEffect(() => {
     if (rendered.length === 256) {
@@ -132,8 +133,15 @@ function App() {
   }
 
   function addFiles(event: React.ChangeEvent<HTMLInputElement>) {
-    setRendered([]);
     setFileUploads([...fileUploads, ...event.target.files!]);
+  }
+
+  function swapFiles(i1: number, i2: number) {
+    const newFiles = fileUploads.slice();
+    const temp = fileUploads[i1];
+    newFiles[i1] = fileUploads[i2];
+    newFiles[i2] = temp;
+    setFileUploads(newFiles);
   }
 
   function clearFileInput() {
@@ -141,6 +149,7 @@ function App() {
   }
 
   async function runFilesConvert() {
+    setRendered([]);
     if (fileUploads.length === 0) return;
     let bufs: ArrayBuffer[] = [];
     for (let file of fileUploads) {
@@ -202,13 +211,35 @@ function App() {
             multiple={true}
           />
 
-          {fileUploads.map(function (fileUpload, i) {
-            return (
-              <div className="mt2 f6" key={i}>
-                {fileUpload.name}
-              </div>
-            );
-          })}
+          <div className="mv3">
+            {fileUploads.map(function (fileUpload, i) {
+              return (
+                <div className="mt2 f6 pa2 ba b--light-gray" key={i}>
+                  <div className="flex justify-between">
+                    <div>{fileUpload.name}</div>
+                    <div>
+                      {i > 0 ? (
+                        <span
+                          className="pointer"
+                          onClick={() => swapFiles(i, i - 1)}
+                        >
+                          ↑
+                        </span>
+                      ) : null}
+                      {i < fileUploads.length - 1 ? (
+                        <span
+                          className="ml2 pointer"
+                          onClick={() => swapFiles(i, i + 1)}
+                        >
+                          ↓
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {fileUploads.length > 0 ? (
             <button className="f6 mt2" onClick={clearFileInput}>

@@ -18,7 +18,15 @@ For command line usage and developing, see [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Caveats
 
-Certain scripts cannot be rendered in MapLibre GL, including, but not limited to:
+If the MapLibre renderer does not find a matching codepoint in the current font, it will skip display of that character.
+
+### CJK (Chinese, Japanese, Korean) text
+
+The `font-maker` demo app has [local ideographs](https://maplibre.org/maplibre-gl-js-docs/example/local-ideographs/) enabled which is the default for most MapLibre applications. Generated fonts that include CJK ranges will display system default fonts instead of generated fonts.
+
+### CTL (Complex Text Layout) scripts
+
+Certain scripts cannot be rendered in MapLibre GL, affecting at least these languages:
 
 * Burmese: OSM tag `name:my`
 * Hindi `name:hi`
@@ -34,13 +42,6 @@ Certain scripts cannot be rendered in MapLibre GL, including, but not limited to
 * Malayalam `name:ml`
 
 Labels using these scripts have been excluded from the sample capital cities dataset.
-
-## Variants
-
-By specifying a font file you can control which variants are used for these scripts:
-
-* Cyriac (Eastern/Western/Estrangela)
-* Han (kr/hk/cn/tw/jp/vn)
 
 ## Discussion
 

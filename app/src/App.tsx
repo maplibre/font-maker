@@ -377,7 +377,7 @@ function App() {
       <div className="w-75-l w-50-m w-0 overflow-y-scroll white flex flex-column items-center relative">
         <Map
           mapLib={maplibregl}
-          RTLTextPlugin="mapbox-gl-rtl-text.min.js"
+          RTLTextPlugin="https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js"
           mapStyle={style}
         >
           <NavigationControl />

@@ -31,7 +31,7 @@ void do_codepoint(protozero::pbf_writer &parent, std::vector<FT_Face> &faces, FT
             // conversions requiring checks, for safety and correctness
 
             // shortening conversion
-            if (char_code > numeric_limits<FT_ULong>::max()) {
+            if (char_code > numeric_limits<uint32_t>::max()) {
                 throw runtime_error("Invalid value for char_code: too large");
             } else {
                 glyph_message.add_uint32(1,static_cast<uint32_t>(char_code));

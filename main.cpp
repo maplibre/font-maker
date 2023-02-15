@@ -86,6 +86,7 @@ string do_range(std::vector<FT_Face> &faces, std::string name, unsigned start, u
 struct fontstack {
     FT_Library library;
     std::vector<FT_Face> *faces;
+    std::vector<char *> *data;
     std::set<std::string> *seen_face_names;
     std::string *name;
 };
@@ -99,6 +100,7 @@ extern "C" {
     fontstack *create_fontstack() {
         fontstack *f = (fontstack *)malloc(sizeof(fontstack));
         f->faces = new std::vector<FT_Face>;
+        f->data = new std::vector<char *>;
         f->name = new std::string;
         f->seen_face_names = new std::set<std::string>;
 
@@ -143,6 +145,9 @@ extern "C" {
     void free_fontstack(fontstack *f) {
         for (auto fc : *f->faces) {
             FT_Done_Face(fc);
+        }
+        for (auto d : *f->data) {
+            free(d);
         }
         FT_Done_FreeType(f->library);
         delete f->faces;
@@ -213,9 +218,10 @@ int main(int argc, char *argv[])
         std::streamsize size = file.tellg();
         file.seekg(0, std::ios::beg);
 
-        std::vector<char> buffer(size);
-        file.read(buffer.data(), size);
-        fontstack_add_face(f,(FT_Byte *)buffer.data(),size);
+        char * buffer = (char *)malloc(size);
+        f->data->push_back(buffer);
+        file.read(buffer, size);
+        fontstack_add_face(f,(FT_Byte *)buffer,size);
     }
 
     std::string fname{fontstack_name(f)};

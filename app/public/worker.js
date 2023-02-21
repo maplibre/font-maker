@@ -76,6 +76,10 @@ self.onmessage = function (message) {
     );
   }
 
+  for (let data_ptr of font_datas) {
+    Module._free(data_ptr);
+  }
+
   Module._free(s);
   Module.ccall("free_fontstack", "number", ["number"], [fontstack_ptr]);
 

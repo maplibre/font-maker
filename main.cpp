@@ -37,12 +37,14 @@ void do_codepoint(protozero::pbf_writer &parent, std::vector<FT_Face> &faces, FT
                 glyph_message.add_uint32(1,static_cast<uint32_t>(char_code));
             }
 
-            // double to int
-            double top = static_cast<double>(glyph.top) - glyph.ascender;
+            // node-fontnik uses glyph.top - glyph.ascender, assuming that the baseline
+            // will be based on the ascender. However, Mapbox/MapLibre shaping assumes
+            // a baseline calibrated on DIN Pro w/ ascender of ~25 at 24pt
+            int32_t top = glyph.top - 25;
             if (top < numeric_limits<int32_t>::min() || top > numeric_limits<int32_t>::max()) {
-                throw runtime_error("Invalid value for glyph.top-glyph.ascender");
+                throw runtime_error("Invalid value for glyph.top-25");
             } else {
-                glyph_message.add_sint32(6,static_cast<int32_t>(top));
+                glyph_message.add_sint32(6,top);
             }
 
             // double to uint

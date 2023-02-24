@@ -3,10 +3,13 @@ importScripts("sdfglyph.js");
 self.onmessage = function (e) {
   const fontstack_ptr = Module.ccall("create_fontstack", "number", [], []);
 
+  const font_datas = [];
+
   for (let ab of e.data) {
     let uint8Arr = new Uint8Array(ab);
     const num_bytes = uint8Arr.length * uint8Arr.BYTES_PER_ELEMENT;
     const data_ptr = Module._malloc(num_bytes);
+    font_datas.push(data_ptr);
     const data_on_heap = new Uint8Array(
       Module.HEAPU8.buffer,
       data_ptr,
@@ -66,4 +69,8 @@ self.onmessage = function (e) {
 
   Module._free(s);
   Module.ccall("free_fontstack", "number", ["number"], [fontstack_ptr]);
+
+  for (let data_ptr of font_datas) {
+    Module._free(data_ptr);
+  }
 };

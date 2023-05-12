@@ -83,7 +83,7 @@ export function App() {
             dispatch({ type: 'setFontStacks', stacks: newStacks, modifiedStackIds });
         },
         mapConfigChange: (changes: Partial<MapConfig>) => {
-            dispatch({ type: 'updateMapConfig', ...changes });
+            dispatch({ type: 'updateMapConfig', changes });
         },
     }), []);
 
@@ -93,7 +93,7 @@ export function App() {
         dispatch({ type: 'startConversion', toConvert });
 
         for (const stack of toConvert) {
-            const stackFiles = Array.from(flattenTree([stack]));
+            const stackFiles = flattenTree([stack]);
             const buffers = await Promise.all(
                 stackFiles.map(item => item.data.file.arrayBuffer()),
             );

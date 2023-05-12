@@ -9,7 +9,7 @@ export type AppAction =
     | { type: 'setFontStacks'; stacks: FontFileTreeItem[]; modifiedStackIds?: string[]; }
     | { type: 'startConversion'; toConvert: FontFileTreeItem[]; }
     | { type: 'updateConversionStatus'; data: WebWorkerDataPackage; }
-    | { type: 'updateMapConfig'; } & Partial<MapConfig>;
+    | { type: 'updateMapConfig'; changes: Partial<MapConfig>; };
 
 export interface WebWorkerDataPackage {
     stackId: string;
@@ -105,10 +105,9 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         }
 
         case 'updateMapConfig': {
-            const { type: _, ...config } = action;
             return {
                 ...state,
-                config: { ...state.config, ...config },
+                config: { ...state.config, ...action.changes },
             };
         }
 

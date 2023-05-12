@@ -12,8 +12,8 @@ export function getProjection<T>(
     indentationWidth: number,
     depthLimit: number,
 ): { depth: number, parent?: TreeItem<T> } {
-    const overItemIndex = getItemIndex(items, overId);
-    const activeItemIndex = getItemIndex(items, activeId);
+    const overItemIndex = items.findIndex(byId(overId));
+    const activeItemIndex = items.findIndex(byId(activeId));
     const activeItem = items[activeItemIndex];
     const newItems = arrayMove(items, activeItemIndex, overItemIndex);
     const prevItem = newItems[overItemIndex - 1];
@@ -49,25 +49,30 @@ export function getOldestParent<T>(item: TreeItem<T> | undefined): TreeItem<T> |
     return getOldestParent(item.parent);
 }
 
-export function* flattenTree<T>(
+function* treeIterator<T>(
     items: TreeItem<T>[],
-    itemIdsWithChildrenToOmit: UniqueIdentifier[] = [],
+    itemIdsWithChildrenToOmit?: UniqueIdentifier[],
     depth = 0,
 ): Generator<FlattenedTreeItem<T>> {
     for (const item of items) {
         yield { ...item, depth };
-        if (!itemIdsWithChildrenToOmit.includes(item.id)) {
-            yield* flattenTree(item.children, itemIdsWithChildrenToOmit, depth + 1);
+        if (!itemIdsWithChildrenToOmit?.includes(item.id)) {
+            yield* treeIterator(item.children, itemIdsWithChildrenToOmit, depth + 1);
         }
     }
 }
 
-export function getItemIndex<T>(items: TreeItem<T>[], itemId: UniqueIdentifier): number {
-    return items.findIndex(item => item.id === itemId);
+export function flattenTree<T>(
+    items: TreeItem<T>[],
+    itemIdsWithChildrenToOmit?: UniqueIdentifier[],
+): FlattenedTreeItem<T>[] {
+    return Array.from(treeIterator(items, itemIdsWithChildrenToOmit));
 }
 
-export function getItemById<T extends TreeItem>(items: T[], itemId: UniqueIdentifier): T {
-    return items.find(item => item.id === itemId)!;
+export function byId<T extends {
+    id: UniqueIdentifier
+}>(id: UniqueIdentifier): (item: T) => boolean {
+    return item => item.id === id;
 }
 
 export function countChildren<T>(items: TreeItem<T>[], count = 0): number {
@@ -103,11 +108,10 @@ export function trimTree<T>(
     for (const item of items) {
         if (item.children.length && (parents.length > depthLimit)) {
             const [parent] = parents;
-            const flattenItemWithDescendants = Array
-                .from(flattenTree([item]))
+            const flattenItemWithDescendants = flattenTree([item])
                 .map(item => ({ ...item, parent, children: [] }));
             const itemSiblings = parent.children;
-            const itemIndex = getItemIndex(itemSiblings, item.id);
+            const itemIndex = itemSiblings.findIndex(byId(item.id));
             itemSiblings.splice(itemIndex, 1, ...flattenItemWithDescendants); // mutation
         } else {
             trimTree(item.children, depthLimit, [item, ...parents]);

@@ -31,7 +31,7 @@ export function isStackConverted(stack: FontFileTreeItem) {
 
 export function resetFontStack(stack: FontFileTreeItem): FontFileTreeItem {
     const [cleared] = buildTree(
-        Array.from(flattenTree([stack]))
+        flattenTree([stack])
             .map(item => ({
                 ...item,
                 data: { ...item.data, stackName: undefined, glyphs: undefined },

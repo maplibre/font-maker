@@ -5,7 +5,7 @@ import { closestCenter, defaultDropAnimation, DndContext, DragEndEvent, DragMove
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { buildTree, countChildren, flattenTree, getItemById, getItemIndex, getOldestParent, getProjection, trimTree } from './utilities.js';
+import { buildTree, byId, countChildren, flattenTree, getOldestParent, getProjection, trimTree } from './utilities.js';
 import { Button, ButtonProps, FileInput } from '../Inputs/Inputs.js';
 import { FileTreeItem } from '../FileTreeItem/FileTreeItem.js';
 import { AppStatus, FontFileTreeItem } from '../../types/types.js';
@@ -87,11 +87,11 @@ export function FilesSection(props: Props) {
     const [offsetLeft, setOffsetLeft] = useState(0);
 
     const flattenedItems = useMemo(() => (
-        Array.from(flattenTree(stacks, activeId ? [activeId] : []))
+        flattenTree(stacks, activeId ? [activeId] : [])
     ), [activeId, stacks]);
 
     const activeItem = activeId
-        ? getItemById(flattenedItems, activeId)
+        ? flattenedItems.find(byId(activeId))
         : undefined;
     const projected = (activeId && overId)
         ? getProjection(flattenedItems, activeId, overId, offsetLeft, indentationWidth, depthLimit)
@@ -223,16 +223,15 @@ export function FilesSection(props: Props) {
         resetState();
 
         if (over?.id === TRASH_ID) {
-            const withoutActive = Array
-                .from(flattenTree(stacks, [active.id]))
+            const withoutActive = flattenTree(stacks, [active.id])
                 .filter(item => item.id !== active.id);
             return onStacksChange(buildTree(withoutActive));
         }
 
         if (projected && over) {
-            const clonedItems = Array.from(flattenTree(stacks));
-            const overIndex = getItemIndex(clonedItems, over.id);
-            const activeIndex = getItemIndex(clonedItems, active.id);
+            const clonedItems = flattenTree(stacks);
+            const overIndex = clonedItems.findIndex(byId(over.id));
+            const activeIndex = clonedItems.findIndex(byId(active.id));
             const activeItem = clonedItems[activeIndex];
 
             if ((overIndex !== activeIndex) || (activeItem.parent?.id !== projected.parent?.id)) {
@@ -242,10 +241,10 @@ export function FilesSection(props: Props) {
                 ];
 
                 activeItem.parent = projected.parent?.id
-                    ? getItemById(clonedItems, projected.parent?.id)
+                    ? clonedItems.find(byId(projected.parent.id))
                     : undefined;
-                const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
 
+                const sortedItems = arrayMove(clonedItems, activeIndex, overIndex);
                 const newItems = buildTree(sortedItems);
                 trimTree(newItems, depthLimit);
                 return onStacksChange(newItems, modifiedStackIds);

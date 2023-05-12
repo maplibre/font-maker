@@ -1,0 +1,53 @@
+:root {
+    --background-color: #fff;
+    --color: hsl(205, 20%, 32%);
+    --muted-color: hsla(205, 20%, 32%, 0.6);
+
+    --primary: hsl(193, 85%, 40%);
+    --primary-hover: hsl(193, 90%, 33%);
+    --primary-inverse: #fff;
+    --danger: #df7575;
+
+    --disabled-bacground-color: rgb(244, 244, 244);
+    --disabled-border-color: rgb(206, 206, 206);
+    --disabled-color: rgb(175, 175, 175);
+
+    --dropzone-bacground-color: rgba(16, 149, 193, 0.08);
+
+    --border-radius: 0.25rem;
+    --border-color: #aaa;
+
+    --font-family: -apple-system, BlinkMacSystemFont, 'avenir next', avenir, 'helvetica neue', helvetica, ubuntu, roboto, noto, 'segoe ui', arial, sans-serif;
+    --font-small: 0.75rem;
+    --font-normal: 0.875rem;
+    --font-large: 1rem;
+
+    --spacing: 0.25rem;
+
+    --transition: 0.15s ease-in-out;
+
+    --tooltip-background-color: hsl(205, 30%, 16%);
+    --tooltip-color: #fff;
+    --tooltip-delay: 500ms;
+
+    --progress-bar-background-color: #ccc;
+    --progress-bar-progress: #39a8f1;
+    --progress-bar-completed: #8ac926;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:where(:root) {
+    background-color: var(--background-color);
+    color: var(--color);
+    font-family: var(--font-family);
+    text-rendering: optimizeLegibility;
+}
+
+body {
+    margin: 0;
+}

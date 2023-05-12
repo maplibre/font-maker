@@ -1,0 +1,121 @@
+.FileTreeItem {
+    padding-left: var(--indent);
+    margin-bottom: -1px;
+    font-size: var(--font-small);
+
+    &.dragOverlay {
+        padding: calc(var(--spacing) * 1) 0 0 calc(var(--spacing) * 5);
+        list-style: none;
+        pointer-events: none;
+        user-select: none;
+
+        .Draggable {
+            --vertical-padding: calc(var(--spacing) * 1);
+            padding-right: calc(var(--spacing) * 6);
+            border-radius: var(--border-radius);
+        }
+    }
+
+    &.newPositionOutline {
+        opacity: 0.5;
+    }
+
+    &.disabledInteraction {
+        .Draggable {
+            touch-action: none;
+            cursor: inherit;
+        }
+    }
+
+    &.disabled {
+        cursor: default;
+    }
+
+    &.overTrashBin {
+        .Draggable {
+            --border-color: var(--danger);
+        }
+
+        .deletionWarning {
+            color: var(--danger);
+            margin-right: var(--spacing);
+        }
+    }
+}
+
+.Draggable {
+    --vertical-padding: calc(var(--spacing) * 2);
+    --horizontal-padding: calc(var(--spacing) * 2);
+
+    position: relative;
+    padding: var(--vertical-padding) var(--horizontal-padding);
+    border: 1px solid var(--border-color);
+    background-color: var(--background-color);
+
+    touch-action: manipulation;
+    cursor: grab;
+
+    transform: translate3d(0, 0, 0);
+}
+
+.ProgressBar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+
+    appearance: none;
+    border: none;
+    background-color: var(--progress-bar-background-color);
+
+    &:not([value='256']) {
+        animation: opacity-animation 2s infinite ease 1.1s;
+    }
+
+    &::-webkit-progress-bar {
+        background: none;
+    }
+
+    &[value]::-webkit-progress-value {
+        background-color: var(--progress-bar-progress);
+    }
+
+    &[value='256']::-webkit-progress-value {
+        background-color: var(--progress-bar-completed);
+    }
+
+    &::-moz-progress-bar {
+        background-color: var(--progress-bar-progress);
+    }
+
+    &[value='256']::-moz-progress-bar {
+        background-color: var(--progress-bar-completed);
+    }
+
+    @keyframes opacity-animation {
+        50% {
+            opacity: 0.5;
+        }
+    }
+}
+
+.ChildrenCount {
+    --size: calc(var(--font-small) * 2);
+
+    position: absolute;
+    width: var(--size);
+    height: var(--size);
+    top: calc(var(--size) / -2);
+    right: calc(var(--size) / -2);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background-color: var(--background-color);
+    color: var(--color);
+    font-size: var(--font-small);
+}

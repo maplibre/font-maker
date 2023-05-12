@@ -1,0 +1,22 @@
+.MapSettingSection {
+    label {
+        display: block;
+        font-size: var(--font-normal);
+        margin-bottom: calc(var(--spacing) * 3);
+
+        input {
+            margin: calc(var(--spacing) * 1) 0 0;
+            width: 100%;
+        }
+
+        select {
+            margin: calc(var(--spacing) * 1) 0 0;
+            width: 0;
+            min-width: 100%;
+        }
+    }
+
+    .fontSizeValue {
+        color: var(--muted-color);
+    }
+}

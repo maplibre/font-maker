@@ -1,0 +1,84 @@
+/* https://github.com/picocss/pico */
+[data-tooltip] {
+    position: relative;
+
+    &:before, &:after {
+        display: block;
+        z-index: 1;
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+
+        padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+        transform: translate(-50%, calc(var(--spacing) * -1));
+        border-radius: var(--border-radius);
+        background: var(--tooltip-background-color);
+        content: '';
+        color: var(--tooltip-color);
+        font-size: var(--font-small);
+        white-space: pre;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    &:after {
+        padding: 0;
+        transform: translate(-50%, 0);
+        border-top: var(--spacing) solid;
+        border-right: var(--spacing) solid transparent;
+        border-left: var(--spacing) solid transparent;
+        border-radius: 0;
+        background-color: transparent;
+        content: '';
+        color: var(--tooltip-background-color);
+    }
+
+    &:hover {
+        &:before, &:after {
+            opacity: 1;
+            transition-property: opacity;
+            transition-delay: var(--tooltip-delay);
+        }
+
+        &:before {
+            content: attr(data-tooltip);
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            &:before, &:after {
+                animation-duration: 0.2s;
+                animation-name: tooltip-slide-top;
+                animation-delay: var(--tooltip-delay);
+            }
+
+            &:after {
+                animation-name: tooltip-caret-slide-top;
+                animation-delay: var(--tooltip-delay);
+            }
+
+            @keyframes tooltip-slide-top {
+                0% {
+                    transform: translate(-50%, calc(var(--spacing) * 3));
+                    opacity: 0;
+                }
+                100% {
+                    transform: translate(-50%, calc(var(--spacing) * -1));
+                    opacity: 1;
+                }
+            }
+            @keyframes tooltip-caret-slide-top {
+                0% {
+                    opacity: 0;
+                }
+                50% {
+                    transform: translate(-50%, calc(var(--spacing) * -1));
+                    opacity: 0;
+                }
+                100% {
+                    transform: translate(-50%, 0);
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}

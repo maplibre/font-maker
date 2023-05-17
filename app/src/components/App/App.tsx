@@ -115,7 +115,7 @@ export function App() {
 
     return (
         <main className={styles.FullPage}>
-            <aside className={styles.SideDrawer}>
+            <aside className={styles.SidePanel}>
                 <header>
                     <h1>
                         <a href='/font-maker' target='_blank'>

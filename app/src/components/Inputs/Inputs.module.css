@@ -91,13 +91,14 @@
 
 .Range {
     --border: 1px solid var(--border-color);
-    --track-height: 6px;
-    --thumb-size: 1.25rem;
+    --track-height: calc(var(--spacing) * 1.5);
+    --thumb-size: calc(var(--spacing) * 5);
     --thumb-transition: border-color var(--transition);
 
     font-size: var(--font-normal);
     appearance: none;
     outline: none;
+    display: block;
     height: 2em;
 
     &::-webkit-slider-runnable-track {
@@ -119,7 +120,7 @@
         appearance: none;
         width: var(--thumb-size);
         height: var(--thumb-size);
-        margin-top: calc((var(--thumb-size) - 4px) / -2);
+        margin-top: calc(-1px - (var(--thumb-size) - var(--track-height)) / 2);
         border: var(--border);
         border-radius: 50%;
         background: var(--background-color);
@@ -136,7 +137,7 @@
         appearance: none;
         width: var(--thumb-size);
         height: var(--thumb-size);
-        margin-top: calc((var(--thumb-size) - 4px) / -2);
+        margin-top: calc(-1px - (var(--thumb-size) - var(--track-height)) / 2);
         border: var(--border);
         border-radius: 50%;
         background: var(--background-color);

@@ -2,21 +2,21 @@
     height: 100vh;
     display: flex;
 
-    .SideDrawer {
+    .SidePanel {
         flex-grow: 1;
-        max-width: 420px;
+        max-width: 26rem;
     }
 
     .MapPreview {
         flex-grow: 10;
 
-        @media (max-width: 400px) {
+        @media (max-width: 25rem) {
             flex-grow: 0;
         }
     }
 }
 
-.SideDrawer {
+.SidePanel {
     overflow-y: auto;
     padding: calc(var(--spacing) * 4);
     border-right: 1px solid var(--border-color);

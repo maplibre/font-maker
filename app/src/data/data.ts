@@ -2,13 +2,13 @@ export const DEFAULT_FONT = 'Noto Sans Regular';
 
 export const EXAMPLES = [
     {
-        name: 'Font "Barlow Regular"',
+        name: 'Font stack "Barlow Regular"',
         files: [
             'Barlow-Regular.ttf',
         ],
     },
     {
-        name: 'Font "Lato Bold"',
+        name: 'Font stack "Lato Bold"',
         files: [
             'Lato-Bold.ttf',
         ],

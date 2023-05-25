@@ -2,38 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Font Maker</title>
   </head>
   <body>
-    <style>
-      input[type='file'] {
-        color: transparent;
-      }
-
-      .bg-action {
-        background-color: rgb(41, 94, 172);
-        color: white;
-      }
-
-      .loadingspinner {
-        pointer-events: none;
-        width: 1.5em;
-        height: 1.5em;
-        border: 0.4em solid transparent;
-        border-color: #eee;
-        border-top-color: rgb(41, 94, 172);
-        border-radius: 50%;
-        animation: loadingspin 1s linear infinite;
-      }
-
-      @keyframes loadingspin {
-        100% {
-            transform: rotate(360deg)
-        }
-      }
-    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,0 +1,61 @@
+.FullPage {
+    height: 100vh;
+    display: flex;
+
+    .SidePanel {
+        flex-grow: 1;
+        max-width: 26rem;
+    }
+
+    .MapPreview {
+        flex-grow: 10;
+
+        @media (max-width: 25rem) {
+            flex-grow: 0;
+        }
+    }
+}
+
+.SidePanel {
+    overflow-y: auto;
+    padding: calc(var(--spacing) * 4);
+    border-right: 1px solid var(--border-color);
+
+    header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h1 {
+            font-size: 2rem;
+        }
+
+        a {
+            color: var(--color);
+            text-decoration: none;
+        }
+
+        svg {
+            height: 1.5em;
+            display: block;
+        }
+    }
+}
+
+.SectionWrapper {
+    &:not(:last-child) {
+        margin-bottom: calc(var(--spacing) * 6);
+    }
+
+    h2 {
+        margin-top: 0;
+        margin-bottom: calc(var(--spacing) * 2);
+        font-size: 1rem;
+    }
+
+    ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+}

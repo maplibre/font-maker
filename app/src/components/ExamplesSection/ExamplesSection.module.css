@@ -1,0 +1,42 @@
+.ExampleItem {
+    font-size: var(--font-small);
+    border: 1px solid var(--border-color);
+    border-bottom-width: 0;
+
+    &:first-child {
+        border-top-right-radius: var(--border-radius);
+        border-top-left-radius: var(--border-radius);
+    }
+
+    &:last-child {
+        border-bottom-right-radius: var(--border-radius);
+        border-bottom-left-radius: var(--border-radius);
+        border-bottom-width: 1px;
+    }
+
+    button {
+        border: none;
+        border-radius: inherit;
+        background-color: transparent;
+        color: var(--color);
+        font-size: var(--font-small);
+        font-family: inherit;
+
+        padding: calc(var(--spacing) * 2);
+        width: 100%;
+        text-align: start;
+        transition: color var(--transition);
+
+        &:is(:hover, :active, :focus) {
+            --color: var(--primary-hover);
+        }
+
+        &:is([disabled]) {
+            --color: var(--disabled-color);
+        }
+
+        &:not([disabled]) {
+            cursor: pointer;
+        }
+    }
+}

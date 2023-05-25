@@ -1,0 +1,151 @@
+.Input {
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 2);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background-color: var(--background-color);
+    color: var(--color);
+    font-size: var(--font-normal);
+    font-family: inherit;
+    transition: background-color var(--transition), border-color var(--transition), color var(--transition), opacity var(--transition);
+
+    &:is([disabled]) {
+        --background-color: var(--disabled-bacground-color);
+        --border-color: var(--disabled-border-color);
+        --color: var(--disabled-color);
+        pointer-events: none;
+    }
+
+    &:is(input[type=search], select) {
+        outline: none;
+        height: 2em;
+
+        &:is(:hover, :active, :focus) {
+            --border-color: var(--primary);
+        }
+    }
+}
+
+.Button {
+    --background-color: var(--primary);
+    --border-color: var(--primary);
+    --color: var(--primary-inverse);
+
+    font-size: var(--font-normal);
+    cursor: pointer;
+
+    &:is(:hover, :active, :focus) {
+        --background-color: var(--primary-hover);
+        --border-color: var(--primary-hover);
+        --color: var(--primary-inverse);
+    }
+
+    &.outline {
+        --background-color: transparent;
+
+        &:not([disabled]) {
+            --border-color: var(--primary);
+            --color: var(--primary);
+        }
+
+        &:is(:hover, :active, :focus) {
+            --border-color: var(--primary-hover);
+            --color: var(--primary-hover);
+        }
+    }
+}
+
+.FileInput {
+    --background-color: var(--primary);
+    --border-color: transparent;
+    --color: var(--primary-inverse);
+
+    cursor: pointer;
+    font-size: 0;
+
+    &:is(:hover, :active, :focus-visible) {
+        --background-color: var(--primary-hover);
+    }
+
+    &::file-selector-button {
+        border: none;
+        padding: 0;
+        background-color: unset;
+        color: inherit;
+        cursor: inherit;
+
+        font-size: var(--font-normal);
+        width: 100%;
+    }
+}
+
+.Select {
+    padding-right: calc(var(--spacing) * 4 + 1em);
+    appearance: none;
+    text-overflow: ellipsis;
+
+    background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="rgb(65, 84, 98)" %3E%3Cpath d="M6 9 12 15 18 9" vector-effect="non-scaling-stroke" stroke-linejoin="round" stroke-linecap="round"/%3E%3C/svg%3E');
+    background-position: center right calc(var(--spacing) * 2);
+    background-size: 1em auto;
+    background-repeat: no-repeat;
+}
+
+.Range {
+    --border: 1px solid var(--border-color);
+    --track-height: calc(var(--spacing) * 1.5);
+    --thumb-size: calc(var(--spacing) * 5);
+    --thumb-transition: border-color var(--transition);
+
+    font-size: var(--font-normal);
+    appearance: none;
+    outline: none;
+    display: block;
+    height: 2em;
+
+    &::-webkit-slider-runnable-track {
+        appearance: none;
+        height: var(--track-height);
+        border: var(--border);
+        border-radius: var(--border-radius);
+    }
+
+    &::-moz-range-track {
+        box-sizing: border-box;
+        appearance: none;
+        height: var(--track-height);
+        border: var(--border);
+        border-radius: var(--border-radius);
+    }
+
+    &::-webkit-slider-thumb {
+        appearance: none;
+        width: var(--thumb-size);
+        height: var(--thumb-size);
+        margin-top: calc(-1px - (var(--thumb-size) - var(--track-height)) / 2);
+        border: var(--border);
+        border-radius: 50%;
+        background: var(--background-color);
+        cursor: pointer;
+        transition: var(--thumb-transition);
+    }
+
+    &:is(:hover, :active, :focus)::-webkit-slider-thumb {
+        --border: 1px solid var(--primary);
+    }
+
+    &::-moz-range-thumb {
+        box-sizing: border-box;
+        appearance: none;
+        width: var(--thumb-size);
+        height: var(--thumb-size);
+        margin-top: calc(-1px - (var(--thumb-size) - var(--track-height)) / 2);
+        border: var(--border);
+        border-radius: 50%;
+        background: var(--background-color);
+        cursor: pointer;
+        transition: var(--thumb-transition);
+    }
+
+    &:is(:hover, :active, :focus)::-moz-range-thumb {
+        --border: 1px solid var(--primary);
+    }
+}

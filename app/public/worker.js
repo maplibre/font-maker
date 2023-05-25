@@ -1,11 +1,12 @@
 importScripts("sdfglyph.js");
 
-self.onmessage = function (e) {
+self.onmessage = function (message) {
+  const { stackId, buffers } = message.data;
   const fontstack_ptr = Module.ccall("create_fontstack", "number", [], []);
 
   const font_datas = [];
 
-  for (let ab of e.data) {
+  for (let ab of buffers) {
     let uint8Arr = new Uint8Array(ab);
     const num_bytes = uint8Arr.length * uint8Arr.BYTES_PER_ELEMENT;
     const data_ptr = Module._malloc(num_bytes);
@@ -62,9 +63,17 @@ self.onmessage = function (e) {
       )
     );
     Module.ccall("free_glyph_buffer", null, ["number"], [glyph_buffer_ptr]);
-    self.postMessage({ buffer: result, index: i, name: stack_name }, [
-      result.buffer,
-    ]);
+    self.postMessage(
+      {
+        stackId,
+        stackName: stack_name,
+        glyph: {
+          name: `${i}-${i + 255}.pbf`,
+          buffer: result,
+        },
+      },
+      [result.buffer]
+    );
   }
 
   Module._free(s);

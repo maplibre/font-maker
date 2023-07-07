@@ -33,6 +33,6 @@
     "postcss": "^8.4.23",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.0.4",
-    "vite": "^4.3.5"
+    "vite": "^4.3.9"
   }
 }

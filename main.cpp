@@ -91,6 +91,7 @@ struct fontstack {
     std::vector<char *> *data;
     std::set<std::string> *seen_face_names;
     std::string *name;
+    bool auto_name;
 };
 
 struct glyph_buffer {
@@ -99,12 +100,19 @@ struct glyph_buffer {
 };
 
 extern "C" {
-    fontstack *create_fontstack() {
+    fontstack *create_fontstack(const char *name) {
         fontstack *f = (fontstack *)malloc(sizeof(fontstack));
         f->faces = new std::vector<FT_Face>;
         f->data = new std::vector<char *>;
-        f->name = new std::string;
         f->seen_face_names = new std::set<std::string>;
+
+        if (name != nullptr) {
+            f->name = new std::string(name);
+            f->auto_name = false;
+        } else {
+            f->name = new std::string;
+            f->auto_name = true;
+        }
 
         FT_Library library = nullptr;
         FT_Error error = FT_Init_FreeType(&library);
@@ -130,17 +138,19 @@ extern "C" {
         FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size * (1 << 6)), 0, 0);
         f->faces->push_back(face);
 
-        std::string combined_name = std::string(face->family_name);
-        if (face->style_name != NULL) {
-            combined_name += " " + std::string(face->style_name);
-        }
-
-        if (f->seen_face_names->count(combined_name) == 0) {
-            if (f->seen_face_names->size() > 0) {
-              *f->name += ",";
+        if (f->auto_name) {
+            std::string combined_name = std::string(face->family_name);
+            if (face->style_name != NULL) {
+                combined_name += " " + std::string(face->style_name);
             }
-            *f->name += combined_name;
-            f->seen_face_names->insert(combined_name);
+
+            if (f->seen_face_names->count(combined_name) == 0) {
+                if (f->seen_face_names->size() > 0) {
+                  *f->name += ",";
+                }
+                *f->name += combined_name;
+                f->seen_face_names->insert(combined_name);
+            }
         }
     }
 
@@ -196,6 +206,7 @@ int main(int argc, char *argv[])
     cmd_options.add_options()
         ("output", "Output directory", cxxopts::value<string>())
         ("fonts", "Input fonts TTF or OTF", cxxopts::value<vector<string>>())
+        ("name", "Override output fontstack name", cxxopts::value<string>())
     ;
     cmd_options.parse_positional({"output","fonts"});
     auto result = cmd_options.parse(argc, argv);
@@ -213,7 +224,7 @@ int main(int argc, char *argv[])
     if (ghc::filesystem::exists(output_dir)) ghc::filesystem::remove_all(output_dir);
     ghc::filesystem::create_directory(output_dir);
 
-    fontstack *f = create_fontstack();
+    fontstack *f = create_fontstack(result["name"].as<string>().c_str());
 
     for (auto const &font : fonts) {
         std::ifstream file(font, std::ios::binary | std::ios::ate);
@@ -223,6 +234,7 @@ int main(int argc, char *argv[])
         char * buffer = (char *)malloc(size);
         f->data->push_back(buffer);
         file.read(buffer, size);
+        std::cout << "Adding " << font << std::endl;
         fontstack_add_face(f,(FT_Byte *)buffer,size);
     }
 

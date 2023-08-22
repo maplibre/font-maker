@@ -2,7 +2,7 @@ importScripts("sdfglyph.js");
 
 self.onmessage = function (message) {
   const { stackId, buffers } = message.data;
-  const fontstack_ptr = Module.ccall("create_fontstack", "number", [], []);
+  const fontstack_ptr = Module.ccall("create_fontstack", "number", ["number"], [0]);
 
   const font_datas = [];
 
@@ -76,10 +76,10 @@ self.onmessage = function (message) {
     );
   }
 
-  Module._free(s);
-  Module.ccall("free_fontstack", "number", ["number"], [fontstack_ptr]);
-
   for (let data_ptr of font_datas) {
     Module._free(data_ptr);
   }
+
+  Module._free(s);
+  Module.ccall("free_fontstack", "number", ["number"], [fontstack_ptr]);
 };

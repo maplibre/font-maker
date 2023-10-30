@@ -4,6 +4,8 @@ The easiest way to turn your custom fonts into files compatible with [MapLibre G
 
 For other prepared fonts, look at [maplibre/demotiles/font](https://github.com/maplibre/demotiles/tree/gh-pages/font) instead.
 
+For an example of using font-maker on the command line to cover as much of Unicode as possible, see the [protomaps/basemaps-assets](https://github.com/protomaps/basemaps-assets) repository.
+
 ## Usage
 
 * Go to the web app at [maplibre.org/font-maker/](https://maplibre.org/font-maker/) and select your file.
@@ -19,6 +21,8 @@ For command line usage and developing, see [CONTRIBUTING.md](CONTRIBUTING.md)
 ## Caveats
 
 If the MapLibre renderer does not find a matching codepoint in the current font, it will skip display of that character.
+
+See @wipfli's [Text Rendering in MapLibre guide](https://github.com/wipfli/about-text-rendering-in-maplibre) for details on the drawbacks of mapping 1 codepoint to 1 glyph.
 
 ### CJK (Chinese, Japanese, Korean) text
 

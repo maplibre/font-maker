@@ -70,7 +70,7 @@ string do_range(std::vector<FT_Face> &faces, std::string name, unsigned start, u
         protozero::pbf_writer fontstack{fontstack_data};
 
         fontstack.add_string(1,name);
-        fontstack.add_string(2,to_string(start) + "-" + to_string(end)); 
+        fontstack.add_string(2,to_string(start) + "-" + to_string(end));
 
         for (unsigned x = start; x <= end; x++) {
             FT_ULong char_code = x;
@@ -122,7 +122,7 @@ extern "C" {
         return f;
     }
 
-    void fontstack_add_face(fontstack *f, FT_Byte *base, FT_Long data_size) {
+    void fontstack_add_face(fontstack *f, FT_Byte *base, FT_Long data_size, double scale_factor = 1.0) {
         FT_Face face = 0;
         FT_Error face_error = FT_New_Memory_Face(f->library, base, data_size, 0, &face);
         if (face_error) {
@@ -134,7 +134,6 @@ extern "C" {
         if (!face->family_name) {
             throw runtime_error("face does not have family name");
         }
-        const double scale_factor = 1.0;
         double size = 24 * scale_factor;
         FT_Set_Char_Size(face, 0, static_cast<FT_F26Dot6>(size * (1 << 6)), 0, 0);
         f->faces->push_back(face);
@@ -208,6 +207,7 @@ int main(int argc, char *argv[])
         ("output", "Output directory (to be created, must not already exist)", cxxopts::value<string>())
         ("fonts", "Input font(s) (as TTF or OTF)", cxxopts::value<vector<string>>())
         ("name", "Override output fontstack name", cxxopts::value<string>())
+        ("scale-factor", "Override scale factor", cxxopts::value<double>()->default_value("1.0"))
         ("help", "Print usage")
     ;
     cmd_options.positional_help("<OUTPUT_DIR> <INPUT_FONT> [INPUT_FONT2 ...]");
@@ -224,6 +224,7 @@ int main(int argc, char *argv[])
     }
     auto output_dir = result["output"].as<string>();
     auto fonts = result["fonts"].as<vector<string>>();
+    auto scale_factor = result["scale-factor"].as<double>();
 
     if (ghc::filesystem::exists(output_dir)) {
         cout << "ERROR: output directory " << output_dir << " exists." << endl;
@@ -243,7 +244,7 @@ int main(int argc, char *argv[])
         f->data->push_back(buffer);
         file.read(buffer, size);
         std::cout << "Adding " << font << std::endl;
-        fontstack_add_face(f,(FT_Byte *)buffer,size);
+        fontstack_add_face(f,(FT_Byte *)buffer,size,scale_factor);
     }
 
     std::string fname{fontstack_name(f)};

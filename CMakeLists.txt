@@ -4,6 +4,7 @@ set(CMAKE_CXX_COMPILER "/usr/bin/clang++")
 project(font-maker)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_DEBUG "-DDEBUG -g")
+set(CMAKE_CXX_FLAGS "-Wno-c++11-narrowing")
 
 find_package(Boost 1.73 REQUIRED)
 find_package(Freetype REQUIRED)

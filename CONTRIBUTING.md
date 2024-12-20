@@ -24,3 +24,9 @@ Use `./build_wasm.sh PATH_TO_INCLUDE_DIR` to build the WASM output, where `PATH_
 cmake .
 make
 ```
+
+# Running command line
+
+```
+./font-maker --name "Noto Sans" output File1.ttf File2.ttf
+```

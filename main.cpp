@@ -7,6 +7,9 @@
 
 #ifndef EMSCRIPTEN
 #include "ghc/filesystem.hpp"
+
+// allow font filenames with commas
+#define CXXOPTS_VECTOR_DELIMITER '\0'
 #include "cxxopts.hpp"
 #endif
 #include <iostream>

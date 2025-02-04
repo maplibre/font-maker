@@ -14,10 +14,8 @@ env:
 
 jobs:
   build_app:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - name: install freetype
-        run: sudo apt-get install -y libfreetype-dev
       - uses: actions/checkout@v3
         with:
           submodules: recursive

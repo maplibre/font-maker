@@ -28,11 +28,11 @@
     "@types/pbf": "^3.0.2",
     "@types/react": "^18.2.6",
     "@types/react-dom": "^18.2.4",
-    "@vitejs/plugin-react": "^4.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.31",
     "postcss-nested": "^6.0.1",
     "typescript": "^5.0.4",
-    "vite": "^4.5.9"
+    "vite": "^6.2.0"
   }
 }

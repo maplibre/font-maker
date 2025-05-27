@@ -26,7 +26,7 @@ See @wipfli's [Text Rendering in MapLibre guide](https://github.com/wipfli/about
 
 ### CJK (Chinese, Japanese, Korean) text
 
-The `font-maker` demo app has [local ideographs](https://maplibre.org/maplibre-gl-js-docs/example/local-ideographs/) enabled which is the default for most MapLibre applications. Generated fonts that include CJK ranges will display system default fonts instead of generated fonts.
+The `font-maker` demo app has [local ideographs](https://maplibre.org/maplibre-gl-js/docs/examples/local-ideographs/) enabled which is the default for most MapLibre applications. Generated fonts that include CJK ranges will display system default fonts instead of generated fonts.
 
 ### CTL (Complex Text Layout) scripts
 

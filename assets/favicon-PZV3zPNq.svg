@@ -1,0 +1,15 @@
+<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        text {
+            fill: black;
+            font-family: Verdana;
+        }
+        @media (prefers-color-scheme: dark) {
+            text {
+                fill: white;
+            }
+        }
+    </style>
+    <text x="6" y="28" font-size="32">F</text>
+    <text x="17" y="43" font-size="26">M</text>
+</svg>

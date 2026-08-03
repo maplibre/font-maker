@@ -8,6 +8,8 @@ set(CMAKE_CXX_FLAGS "-Wno-c++11-narrowing")
 
 find_package(Boost 1.73 REQUIRED)
 find_package(Freetype REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(HARFBUZZ REQUIRED harfbuzz)
 
 include_directories(vendor/cxxopts/include)
 include_directories(vendor/filesystem/include)
@@ -15,8 +17,9 @@ include_directories(vendor/sdf-glyph-foundry/include)
 include_directories(vendor/protozero/include)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${FREETYPE_INCLUDE_DIRS})
+include_directories(${HARFBUZZ_INCLUDE_DIRS})
 
 add_executable(font-maker main.cpp)
-target_link_libraries(font-maker ${FREETYPE_LIBRARIES})
+target_link_libraries(font-maker ${FREETYPE_LIBRARIES} ${HARFBUZZ_LIBRARIES})
 
 set_property(TARGET font-maker PROPERTY CXX_STANDARD 17)
